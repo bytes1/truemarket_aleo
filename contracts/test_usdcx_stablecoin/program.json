@@ -1,12 +1,12 @@
 {
-  "program": "ture_prediction_market1.aleo",
+  "program": "test_usdcx_stablecoin.aleo",
   "version": "0.1.0",
-  "description": "",
+  "description": "Local ABI stub for the USDCX stablecoin dependency",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [
     {
-      "name": "usdcx_token_adapter.aleo",
+      "name": "true_market_token.aleo",
       "location": "network",
       "network": "testnet"
     }

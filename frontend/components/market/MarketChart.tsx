@@ -11,7 +11,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
@@ -37,26 +36,23 @@ interface ChartDataPoint {
   [key: string]: string | number;
 }
 
-// Generate data ONLY from Nov 4 onwards, starting at 50:50
+// Generate chart data from Feb 27 2026 → today
 function generateRaceData(
   outcome_a: string,
   outcome_b: string
 ): ChartDataPoint[] {
   const data: ChartDataPoint[] = [];
 
-  // Start from Nov 4, 2025
-  const startDate = new Date(2025, 10, 4); // Nov 4, 2025
-  const today = new Date(2025, 10, 4); // Current date: Nov 4, 2025
+  const startDate = new Date(2026, 1, 27); // Feb 27 2026
+  const today = new Date();
 
-  let priceA = 50; // Both start at 50%
-  let priceB = 50;
-  let raceWinner = "";
+  const diffDays = Math.floor(
+    (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
-  // Generate data from Nov 4 to today
-  for (let i = 0; i <= 0; i++) {
-    // Only Nov 4
+  for (let i = 0; i <= diffDays; i++) {
     const currentDate = new Date(startDate);
-    currentDate.setDate(currentDate.getDate() + i);
+    currentDate.setDate(startDate.getDate() + i);
 
     const dataPoint: ChartDataPoint = {
       date: currentDate.toLocaleDateString("en-US", {
@@ -112,20 +108,18 @@ export const MarketChart = ({ market }: MarketChartProps) => {
     return generateRaceData(outcomeA, outcomeB);
   }, [outcomeA, outcomeB]);
 
-  const currentData = chartData[chartData.length - 1];
-  const priceA = 50;
-  const priceB = 50;
+  const priceA = market.yesPercentage;
+  const priceB = market.noPercentage;
 
   return (
     <Card className="mb-6">
       <CardHeader>
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-lg font-semibold">
-                Price History
-              </CardTitle>
-            </div>
+            <CardTitle className="text-lg font-semibold">
+              Price History
+            </CardTitle>
+
             <div className="flex gap-2">
               {(["24h", "7d", "30d", "All"] as const).map((tf) => (
                 <Button
@@ -167,24 +161,21 @@ export const MarketChart = ({ market }: MarketChartProps) => {
                 stroke="#e5e7eb"
                 vertical={false}
               />
+
               <XAxis
                 dataKey="date"
                 stroke="#6b7280"
                 style={{ fontSize: "12px" }}
                 tick={{ fill: "#9ca3af" }}
               />
+
               <YAxis
                 stroke="#6b7280"
                 style={{ fontSize: "12px" }}
                 tick={{ fill: "#9ca3af" }}
                 domain={[0, 100]}
-                label={{
-                  value: "100%",
-                  angle: -90,
-                  position: "insideLeft",
-                  offset: 10,
-                }}
               />
+
               <ReferenceLine
                 y={50}
                 stroke="#d1d5db"
@@ -196,8 +187,9 @@ export const MarketChart = ({ market }: MarketChartProps) => {
                   fontSize: 12,
                 }}
               />
+
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
+
               <Line
                 type="monotone"
                 dataKey={outcomeA.toLowerCase()}
@@ -205,8 +197,8 @@ export const MarketChart = ({ market }: MarketChartProps) => {
                 strokeWidth={3}
                 dot={{ fill: "#10b981", r: 5 }}
                 name={outcomeA}
-                isAnimationActive={true}
               />
+
               <Line
                 type="monotone"
                 dataKey={outcomeB.toLowerCase()}
@@ -214,7 +206,6 @@ export const MarketChart = ({ market }: MarketChartProps) => {
                 strokeWidth={3}
                 dot={{ fill: "#ef4444", r: 5 }}
                 name={outcomeB}
-                isAnimationActive={true}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -222,7 +213,7 @@ export const MarketChart = ({ market }: MarketChartProps) => {
 
         {/* Info Box */}
         <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 text-xs text-blue-900 dark:text-blue-200">
-          <strong>Market Start:</strong> Nov 4, 2025 at 50% / 50% odds
+          <strong>Market Start:</strong> Feb 27, 2026 at {priceA}% / {priceB}% odds
         </div>
       </CardContent>
     </Card>

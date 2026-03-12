@@ -1,12 +1,12 @@
 {
-  "program": "ture_prediction_market1.aleo",
+  "program": "usdcx_token_adapter.aleo",
   "version": "0.1.0",
   "description": "",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [
     {
-      "name": "usdcx_token_adapter.aleo",
+      "name": "test_usdcx_stablecoin.aleo",
       "location": "network",
       "network": "testnet"
     }
