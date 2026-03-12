@@ -1,106 +1,186 @@
-// components/MarketCard.tsx
 import Image from "next/image";
-import type { Market } from "@/lib/data"; // Adjust path to your data.ts
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CircleDollarSign, Clock } from "lucide-react";
+import {
+  ArrowUpRight,
+  CircleDollarSign,
+  Clock3,
+  Flame,
+  Sparkles,
+  Users,
+} from "lucide-react";
+import type { Market } from "@/lib/data";
+import { cn } from "@/lib/utils";
+
+const categoryTheme = {
+  Crypto: {
+    accent: "from-amber-400 via-orange-400 to-pink-500",
+    badge:
+      "border-amber-300/30 bg-amber-300/12 text-amber-100",
+    support:
+      "border-amber-300/20 bg-amber-300/10 text-amber-100",
+    outcome:
+      "border-amber-300/25 bg-amber-300/10 text-amber-900 dark:text-amber-100",
+  },
+  Politics: {
+    accent: "from-sky-500 via-indigo-400 to-cyan-300",
+    badge: "border-sky-300/30 bg-sky-300/12 text-sky-100",
+    support: "border-sky-300/20 bg-sky-300/10 text-sky-100",
+    outcome:
+      "border-sky-300/25 bg-sky-300/10 text-sky-900 dark:text-sky-100",
+  },
+  Sports: {
+    accent: "from-emerald-400 via-teal-400 to-cyan-400",
+    badge:
+      "border-emerald-300/30 bg-emerald-300/12 text-emerald-100",
+    support:
+      "border-emerald-300/20 bg-emerald-300/10 text-emerald-100",
+    outcome:
+      "border-emerald-300/25 bg-emerald-300/10 text-emerald-900 dark:text-emerald-100",
+  },
+  Entertainment: {
+    accent: "from-fuchsia-500 via-rose-400 to-orange-300",
+    badge:
+      "border-fuchsia-300/30 bg-fuchsia-300/12 text-fuchsia-100",
+    support:
+      "border-fuchsia-300/20 bg-fuchsia-300/10 text-fuchsia-100",
+    outcome:
+      "border-fuchsia-300/25 bg-fuchsia-300/10 text-fuchsia-900 dark:text-fuchsia-100",
+  },
+} as const;
 
 export const MarketCard = ({ market }: { market: Market }) => {
-  // Default to 'image' style if not specified
-  const style = market.cardStyle || "image";
+  const theme = categoryTheme[market.category];
+  const shouldRenderImage = market.cardStyle !== "text" && Boolean(market.image);
 
   return (
-    <Card className="flex flex-col w-full h-full relative rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-      {/* --- MODIFIED: Conditional Image Section --- */}
-      {style === "image" && (
-        <div className="relative w-full h-32 flex-shrink-0 overflow-hidden">
+    <article className="surface-card group flex h-full flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1">
+      <div className="relative min-h-[15rem] overflow-hidden">
+        {shouldRenderImage ? (
           <Image
             src={market.image || "/placeholder.svg"}
             alt={market.market_title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent" />
+        ) : (
+          <div
+            className={cn(
+              "absolute inset-0 bg-gradient-to-br",
+              theme.accent
+            )}
+          />
+        )}
 
-          {/* Flash Market Badge */}
-          {market.isFlashMarket && (
-            <Badge className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-none shadow-lg">
-              🔥 Flash Market
-            </Badge>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/10 via-slate-950/18 to-slate-950/90" />
+        <div
+          className={cn(
+            "absolute inset-x-0 top-0 h-28 bg-gradient-to-r opacity-35 blur-3xl",
+            theme.accent
           )}
-        </div>
-      )}
-      {/* --- END MODIFIED --- */}
+        />
 
-      {/* Content Section - Added h-full and flex-col */}
-      <div className="flex flex-col gap-4 p-4 h-full">
-        {/* Title */}
-        <h3 className="font-semibold text-lg line-clamp-2 text-slate-900 dark:text-slate-50">
-          {market.market_title}
-        </h3>
+        <div className="relative flex min-h-[15rem] flex-col justify-between p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              <span
+                className={cn(
+                  "rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] backdrop-blur-xl",
+                  theme.badge
+                )}
+              >
+                {market.category}
+              </span>
+              {market.isFlashMarket && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-orange-300/30 bg-orange-300/12 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-100 backdrop-blur-xl">
+                  <Flame className="h-3.5 w-3.5" />
+                  Flash
+                </span>
+              )}
+            </div>
 
-        {/* --- NEW: Spacer for 'text' style cards --- */}
-        {/* This pushes the content to the bottom, aligning it with image cards */}
-        {style === "text" && <div className="flex-grow" />}
-        {/* --- END NEW --- */}
-
-        {/* Progress Bar and Percentages (Unchanged) */}
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-              {market.yesPercentage}%
-            </span>
-            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-              {market.noPercentage}%
-            </span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-white backdrop-blur-xl transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <ArrowUpRight className="h-4.5 w-4.5" />
+            </div>
           </div>
-          <div className="w-full h-2 rounded-full bg-gradient-to-r from-green-400 via-purple-500 to-pink-500" />
-        </div>
 
-        {/* Button Styles (Unchanged) */}
-        <div className="flex gap-2">
-          <Button
-            className="flex-1 bg-cyan-100 text-cyan-800 hover:bg-cyan-200 dark:bg-cyan-900/50 dark:text-cyan-300 dark:hover:bg-cyan-900/70 h-10 text-sm font-bold rounded-lg transition-colors uppercase tracking-wide"
-            variant="ghost"
-          >
-            {market.outcome_a}
-          </Button>
-          <Button
-            className="flex-1 bg-pink-100 text-pink-800 hover:bg-pink-200 dark:bg-pink-900/50 dark:text-pink-300 dark:hover:bg-pink-900/70 h-10 text-sm font-bold rounded-lg transition-colors uppercase tracking-wide"
-            variant="ghost"
-          >
-            {market.outcome_b}
-          </Button>
-        </div>
-
-        {/* Stats Footer (Unchanged) */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700 text-xs">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <div className="flex -space-x-1">
-                <div className="w-4 h-4 rounded-full bg-emerald-500/60 border border-slate-300 dark:border-slate-700"></div>
-                <div className="w-4 h-4 rounded-full bg-purple-500/60 border border-slate-300 dark:border-slate-700"></div>
-              </div>
-              <span className="text-slate-600 dark:text-slate-400 ml-1">
-                +{market.participants}
+          <div>
+            <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-white line-clamp-3">
+              {market.market_title}
+            </h3>
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-white/74">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 backdrop-blur-xl",
+                  theme.support
+                )}
+              >
+                <CircleDollarSign className="h-4 w-4" />
+                {market.currency} {market.volume}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 backdrop-blur-xl">
+                <Clock3 className="h-4 w-4" />
+                {market.deadline}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-            <span className="flex items-center gap-1 font-medium">
-              <CircleDollarSign className="w-3.5 h-3.5" />
-              {market.currency}
-              {market.volume}
-            </span>
-            <span className="flex items-center gap-1 text-slate-500 dark:text-slate-500">
-              <Clock className="w-3.5 h-3.5" />
-              {market.deadline}
-            </span>
-          </div>
         </div>
       </div>
-    </Card>
+
+      <div className="flex flex-1 flex-col gap-5 p-5">
+        <div className="rounded-[24px] border border-slate-200/70 bg-white/84 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
+          <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            <span>{market.outcome_a}</span>
+            <span>{market.outcome_b}</span>
+          </div>
+          <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200/80 dark:bg-white/10">
+            <div className="flex h-full">
+              <div
+                className={cn("h-full bg-gradient-to-r", theme.accent)}
+                style={{ width: `${market.yesPercentage}%` }}
+              />
+              <div
+                className="h-full bg-slate-900/18 dark:bg-white/18"
+                style={{ width: `${market.noPercentage}%` }}
+              />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center justify-between text-sm font-semibold">
+            <span>{market.yesPercentage}% leaning yes</span>
+            <span>{market.noPercentage}% leaning no</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div
+            className={cn(
+              "rounded-[20px] border px-4 py-3",
+              theme.outcome
+            )}
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Outcome A
+            </p>
+            <p className="mt-2 text-base font-semibold">{market.outcome_a}</p>
+          </div>
+          <div className="rounded-[20px] border border-slate-200/70 bg-white/84 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Outcome B
+            </p>
+            <p className="mt-2 text-base font-semibold">{market.outcome_b}</p>
+          </div>
+        </div>
+
+        <div className="mt-auto flex items-center justify-between border-t border-slate-200/70 pt-4 text-sm text-muted-foreground dark:border-white/10">
+          <span className="inline-flex items-center gap-2">
+            <Users className="h-4 w-4 text-sky-500" />
+            {market.participants} participants
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-amber-400" />
+            {market.marketType}
+          </span>
+        </div>
+      </div>
+    </article>
   );
 };

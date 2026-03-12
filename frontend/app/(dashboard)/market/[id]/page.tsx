@@ -1,74 +1,120 @@
-// app/(dashboard)/market/[id]/page.tsx
 "use client";
 
-import { data as allMarkets } from "@/lib/data";
-import { notFound, useParams } from "next/navigation"; // Changed: Import useParams
-import React, { useMemo } from "react";
-
-import { MarketHeader } from "@/components/market/MarketHeader";
+import { useMemo } from "react";
+import { notFound, useParams } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import { MarketChart } from "@/components/market/MarketChart";
-import { MarketRules } from "@/components/market/MarketRules";
+import { MarketHeader } from "@/components/market/MarketHeader";
 import { MarketOpinions } from "@/components/market/MarketOpinions";
+import { MarketRules } from "@/components/market/MarketRules";
 import { TradeCard } from "@/components/market/TradeCard";
+import { data as allMarkets } from "@/lib/data";
 
-// Helper function to get data.
 function getMarketById(id: string) {
-  return allMarkets.find((m) => m.market_id.toString() === id);
+  return allMarkets.find((market) => market.market_id.toString() === id);
 }
 
-/**
- * Parses your specific market_data string format
- */
-function parseMarketData(dataString: string) {
+function extractFirstUrl(value: string) {
+  return value.match(/https?:\/\/[^\s)>]+/i)?.[0] ?? "";
+}
+
+function parseMarketData(dataString: string, fallbackCategory: string) {
   try {
-    const parts = dataString.split("␟");
-    const mainDescription = parts[0] || "";
-    const metadata = parts[2] ? parts[2].split(";") : [];
+    const mainDescription = dataString
+      .split(/âŸ|␟|Ã¢ÂÅ¸/)
+      .filter(Boolean)[0]
+      ?.trim();
+
+    const sourceLink = extractFirstUrl(dataString) || "#";
+    const sourceName =
+      sourceLink !== "#"
+        ? sourceLink.replace(/^https?:\/\//, "").replace(/\/$/, "")
+        : "Resolution source";
 
     return {
-      mainDescription: mainDescription.trim(),
-      categories: metadata[0] || "",
-      sourceLink: metadata[2] || "#",
-      sourceName: metadata[3] || "View Source",
+      mainDescription: mainDescription || "",
+      categories: mainDescription ? [fallbackCategory] : [],
+      sourceLink,
+      sourceName,
     };
   } catch (error) {
     console.error("Failed to parse market data:", error);
     return {
-      mainDescription: "Error loading market details.",
-      categories: "",
+      mainDescription: "",
+      categories: [],
       sourceLink: "#",
-      sourceName: "N/A",
+      sourceName: "Resolution source",
     };
   }
 }
 
 export default function MarketPage() {
-  // Use the useParams hook to get the ID synchronously in a client component
   const params = useParams();
   const id = params?.id as string;
 
-  // Memoize market lookup to prevent unnecessary re-runs
   const market = useMemo(() => (id ? getMarketById(id) : null), [id]);
 
   if (!market) {
     notFound();
   }
 
-  const details = parseMarketData(market.market_data);
+  const details = parseMarketData(market.market_data, market.category);
 
   return (
-    <div className="p-4 md:p-8">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
-        {/* Left Column (Market Details) */}
-        <div className="flex-1 min-w-0">
-          <MarketHeader market={market} />
+    <div className="space-y-6">
+      <MarketHeader market={market} details={details} />
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_390px]">
+        <div className="space-y-6">
+          <section className="grid gap-4 md:grid-cols-3">
+            <div className="surface-card p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                Verification
+              </p>
+              <div className="mt-4 flex items-center gap-3">
+                <div className="rounded-2xl bg-emerald-500/10 p-3 text-emerald-600 dark:text-emerald-300">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-semibold">Rule-based resolution</p>
+                  <p className="text-sm text-muted-foreground">
+                    Outcome follows the written market terms and listed source.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="surface-card p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                Liquidity
+              </p>
+              <p className="mt-4 font-display text-3xl font-bold tracking-tight">
+                {market.currency} {market.volume}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Current displayed market volume on this listing.
+              </p>
+            </div>
+
+            <div className="surface-card p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                Participation
+              </p>
+              <p className="mt-4 font-display text-3xl font-bold tracking-tight">
+                {market.participants}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Represented participants following this market so far.
+              </p>
+            </div>
+          </section>
+
           <MarketChart market={market} />
           <MarketRules details={details} />
-          <MarketOpinions />
+          <MarketOpinions marketTitle={market.market_title} />
         </div>
 
-        {/* Right Column (Trading Card) */}
-        <div className="w-full lg:w-[380px] flex-shrink-0">
+        <div className="space-y-6">
           <TradeCard market={market} />
         </div>
       </div>

@@ -1,51 +1,62 @@
-// components/market/TimelineCard.tsx
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { CalendarClock, CircleDot, ShieldCheck } from "lucide-react";
 import type { Market } from "@/lib/data";
-import { Clock, CheckCircle } from "lucide-react";
 
 export const TimelineCard = ({ market }: { market: Market }) => (
-  <Accordion type="single" collapsible defaultValue="item-1">
-    <AccordionItem value="item-1" className="border-b-0">
-      <AccordionTrigger className="text-base font-semibold text-slate-900 dark:text-slate-50">
+  <div className="space-y-4">
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
         Timeline
-      </AccordionTrigger>
-      <AccordionContent className="pt-2">
-        <div className="flex flex-col gap-4 text-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 flex items-center justify-center">
-              <CheckCircle className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-medium text-slate-800 dark:text-slate-200">
-                Market published
-              </span>
-              <p className="text-slate-500 dark:text-slate-400">
-                November 4, 2025 11:11 PM
-              </p>
-            </div>
+      </p>
+      <h4 className="mt-2 font-display text-xl font-bold tracking-tight">
+        Market lifecycle
+      </h4>
+    </div>
+
+    <div className="space-y-4">
+      <div className="flex gap-3">
+        <div className="flex flex-col items-center">
+          <div className="rounded-full bg-sky-500/10 p-2 text-sky-600 dark:text-sky-300">
+            <CircleDot className="h-4 w-4" />
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-medium text-slate-800 dark:text-slate-200">
-                Market closes
-              </span>
-              <p className="text-slate-500 dark:text-slate-400">
-                {market.deadline}
-              </p>
-            </div>
-          </div>
+          <div className="mt-2 h-full w-px bg-slate-200 dark:bg-white/10" />
         </div>
-      </AccordionContent>
-    </AccordionItem>
-  </Accordion>
+        <div className="pb-2">
+          <p className="font-semibold">Live for trading</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            This market is currently available to browse and trade while active.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <div className="flex flex-col items-center">
+          <div className="rounded-full bg-amber-400/12 p-2 text-amber-600 dark:text-amber-300">
+            <CalendarClock className="h-4 w-4" />
+          </div>
+          <div className="mt-2 h-full w-px bg-slate-200 dark:bg-white/10" />
+        </div>
+        <div className="pb-2">
+          <p className="font-semibold">Closes {market.deadline}</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            Trading should stop once the market reaches its stated close window.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <div className="rounded-full bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-300">
+          <ShieldCheck className="h-4 w-4" />
+        </div>
+        <div>
+          <p className="font-semibold">Resolution review</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            After close, the outcome should be checked against the written rules
+            and listed source before settlement.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 );

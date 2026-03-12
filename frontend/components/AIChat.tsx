@@ -1,15 +1,15 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { useChat } from "@ai-sdk/react";
+import { Send, Sparkles, X } from "lucide-react";
 import { useState } from "react";
-import { X, Send } from "lucide-react";
 
 export function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
 
-  const { messages, sendMessage, status, stop } = useChat({
+  const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
@@ -17,82 +17,68 @@ export function AIChat() {
 
   const isLoading = status === "streaming" || status === "submitted";
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (input.trim() && !isLoading) {
-      sendMessage({ text: input });
-      setInput("");
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!input.trim() || isLoading) {
+      return;
     }
+
+    sendMessage({ text: input });
+    setInput("");
   };
 
   return (
     <>
-      {/* Floating Chat Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 flex items-center justify-center bg-emerald-500 text-white rounded-full shadow-lg hover:bg-emerald-600 transition-all duration-300 hover:shadow-xl"
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-gradient-to-br from-sky-500 via-cyan-400 to-amber-300 text-slate-950 shadow-[0_25px_50px_-24px_rgba(14,165,233,0.9)] transition-transform duration-300 hover:-translate-y-1"
         aria-label="Toggle AI Assistant"
       >
         {isOpen ? (
-          <X className="w-6 h-6" />
+          <X className="h-6 w-6" />
         ) : (
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
+          <Sparkles className="h-6 w-6" />
         )}
       </button>
 
-      {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-40 w-96 h-[600px] bg-white dark:bg-slate-900 rounded-xl shadow-2xl flex flex-col border border-slate-200 dark:border-slate-700 overflow-hidden">
-          {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
-            <div className="flex justify-between items-center">
+        <div className="surface-panel fixed bottom-24 right-6 z-40 flex h-[600px] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden">
+          <div className="border-b border-white/45 bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-950 p-4 text-white dark:border-white/10">
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="font-bold text-lg">AI Market Assistant</h3>
-                <p className="text-sm text-emerald-100">Powered by Gemini</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                  AI companion
+                </p>
+                <h3 className="mt-1 font-display text-xl font-bold">
+                  Market Assistant
+                </h3>
+                <p className="mt-1 text-sm text-white/68">
+                  Ask for fast reads, context, and narrative summaries.
+                </p>
               </div>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-emerald-700 rounded-full transition-colors"
+                className="rounded-full border border-white/12 bg-white/8 p-2 transition-colors hover:bg-white/12"
               >
-                <X className="w-5 h-5" />
+                <X className="h-4.5 w-4.5" />
               </button>
             </div>
           </div>
 
-          {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-800">
+          <div className="flex-1 space-y-4 overflow-y-auto bg-white/45 p-4 dark:bg-slate-950/35">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <svg
-                  className="w-12 h-12 text-emerald-400 mb-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
-                  Start a conversation!
-                </p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                  Ask me about markets or trends
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div className="rounded-full bg-sky-500/10 p-4 text-sky-700 dark:text-sky-200">
+                  <Sparkles className="h-8 w-8" />
+                </div>
+                <h4 className="mt-4 font-display text-xl font-bold tracking-tight">
+                  Start a sharper conversation
+                </h4>
+                <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
+                  Try asking which market looks most interesting, what could
+                  resolve soon, or how the current board breaks down.
                 </p>
               </div>
             ) : (
@@ -104,39 +90,31 @@ export function AIChat() {
                   }`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-lg p-3 ${
+                    className={`max-w-[85%] rounded-[22px] px-4 py-3 text-sm leading-6 shadow-sm ${
                       message.role === "user"
-                        ? "bg-emerald-500 text-white rounded-br-none"
-                        : "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-none shadow-sm"
+                        ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
+                        : "border border-slate-200/70 bg-white/90 text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
                     }`}
                   >
-                    <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {message.parts
-                        .map((part) => {
-                          if (part.type === "text") {
-                            return part.text;
-                          }
-                          return "";
-                        })
-                        .join("")}
-                    </div>
+                    {message.parts
+                      .map((part) => (part.type === "text" ? part.text : ""))
+                      .join("")}
                   </div>
                 </div>
               ))
             )}
 
-            {/* Loading State */}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white dark:bg-slate-700 rounded-lg rounded-bl-none p-3 shadow-sm">
+                <div className="rounded-[22px] border border-slate-200/70 bg-white/90 px-4 py-3 shadow-sm dark:border-white/10 dark:bg-white/5">
                   <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-sky-500" />
                     <div
-                      className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
+                      className="h-2 w-2 animate-bounce rounded-full bg-cyan-400"
                       style={{ animationDelay: "0.1s" }}
                     />
                     <div
-                      className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
+                      className="h-2 w-2 animate-bounce rounded-full bg-amber-300"
                       style={{ animationDelay: "0.2s" }}
                     />
                   </div>
@@ -145,26 +123,25 @@ export function AIChat() {
             )}
           </div>
 
-          {/* Input Form */}
           <form
             onSubmit={handleSubmit}
-            className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+            className="border-t border-white/45 bg-white/65 p-4 dark:border-white/10 dark:bg-slate-950/45"
           >
             <div className="flex gap-2">
               <input
                 type="text"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask me anything..."
+                onChange={(event) => setInput(event.target.value)}
+                placeholder="Ask for a market read..."
                 disabled={isLoading}
-                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="h-12 flex-1 rounded-2xl border border-slate-200/80 bg-white/92 px-4 text-sm outline-none transition focus:border-sky-400 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5"
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="p-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white transition-transform duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-950"
               >
-                <Send className="w-5 h-5" />
+                <Send className="h-4.5 w-4.5" />
               </button>
             </div>
           </form>
