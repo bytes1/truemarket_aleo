@@ -1,0 +1,15 @@
+{
+  "program": "launchpad_usdcx_adapter.aleo",
+  "version": "0.1.0",
+  "description": "USDCx adapter for the standalone launchpad",
+  "license": "MIT",
+  "leo": "3.4.0",
+  "dependencies": [
+    {
+      "name": "test_usdcx_stablecoin.aleo",
+      "location": "network",
+      "network": "testnet"
+    }
+  ],
+  "dev_dependencies": null
+}

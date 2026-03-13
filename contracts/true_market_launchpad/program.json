@@ -1,0 +1,15 @@
+{
+  "program": "true_market_launchpad.aleo",
+  "version": "0.1.0",
+  "description": "Standalone community liquidity launchpad for upcoming True Markets rounds",
+  "license": "MIT",
+  "leo": "3.4.0",
+  "dependencies": [
+    {
+      "name": "launchpad_usdcx_adapter.aleo",
+      "location": "network",
+      "network": "testnet"
+    }
+  ],
+  "dev_dependencies": null
+}

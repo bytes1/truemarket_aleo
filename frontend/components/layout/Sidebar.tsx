@@ -32,6 +32,12 @@ const mainNavigation: NavItem[] = [
     icon: Compass,
   },
   {
+    name: "Launchpad",
+    href: "/launchpad",
+    description: "Seed pre-live liquidity",
+    icon: Sparkles,
+  },
+  {
     name: "Leaderboard",
     href: "/leaderboard",
     description: "Track top forecasters",

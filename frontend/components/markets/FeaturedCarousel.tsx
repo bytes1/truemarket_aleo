@@ -16,12 +16,12 @@ import { Pause, Play, Trophy, Users, TrendingUp, Zap } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 
 const randomImages = [
-  "/ethereum-blockchain-market.jpg",
-  "/bitcoin-cryptocurrency-trading.jpg",
-  "/bitcoin-price-chart.jpg",
-  "/artificial-intelligence-technology.jpg",
-  "/tech-stocks-market.jpg",
-  "/space-exploration-rocket.jpg",
+  "/true.png",
+  "/true.png",
+  "/true.png",
+  "/true.png",
+  "/true.png",
+  "/true.png",
 ];
 
 const events = [

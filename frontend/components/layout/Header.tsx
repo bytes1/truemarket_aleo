@@ -11,16 +11,10 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { WalletButton } from "@/components/common/WalletButton";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 
 export default function Header() {
-  const { setTheme, theme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -69,35 +63,21 @@ export default function Header() {
 
         <div className="ml-auto flex items-center gap-2">
           {mounted && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-11 w-11 rounded-2xl border border-white/55 bg-white/70 shadow-none hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-                >
-                  {theme === "dark" ? (
-                    <Moon className="h-5 w-5" />
-                  ) : (
-                    <SunMedium className="h-5 w-5" />
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="rounded-2xl border-white/60 bg-white/92 p-1 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/92"
-              >
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                  Light
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                  Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                  System
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                setTheme(resolvedTheme === "dark" ? "light" : "dark")
+              }
+              className="h-11 w-11 rounded-2xl border border-white/55 bg-white/70 shadow-none hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+            >
+              {resolvedTheme === "dark" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <SunMedium className="h-5 w-5" />
+              )}
+            </Button>
           )}
 
           <div className="rounded-full border border-white/55 bg-white/65 p-1 shadow-sm dark:border-white/10 dark:bg-white/5">
