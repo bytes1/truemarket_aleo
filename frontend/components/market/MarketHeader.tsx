@@ -6,7 +6,6 @@ import {
   CalendarDays,
   ChevronLeft,
   CircleDollarSign,
-  ShieldCheck,
   Users,
 } from "lucide-react";
 import type { Market } from "@/lib/data";
@@ -35,7 +34,6 @@ export const MarketHeader = ({ market, details }: MarketHeaderProps) => {
     : resolvedDetails.categories
     ? [resolvedDetails.categories]
     : [];
-  const hasDescription = Boolean(resolvedDetails.mainDescription.trim());
   const hasSource = Boolean(sourceHref);
 
   return (
@@ -69,20 +67,10 @@ export const MarketHeader = ({ market, details }: MarketHeaderProps) => {
               {market.market_title}
             </h1>
 
-            {hasDescription && (
-              <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
-                {resolvedDetails.mainDescription}
-              </p>
-            )}
-
             <div className="mt-6 flex flex-wrap gap-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-4 py-2 text-sm dark:border-white/10 dark:bg-white/5">
                 <CalendarDays className="h-4 w-4" />
                 {market.deadline}
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-4 py-2 text-sm dark:border-white/10 dark:bg-white/5">
-                <ShieldCheck className="h-4 w-4" />
-                Rule-based
               </div>
             </div>
 

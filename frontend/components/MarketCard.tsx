@@ -50,9 +50,6 @@ export const MarketCard = ({ market }: { market: Market }) => {
           <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground line-clamp-3">
             {market.market_title}
           </h3>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground line-clamp-3">
-            {market.market_data}
-          </p>
         </div>
 
         <div className="surface-muted p-4">

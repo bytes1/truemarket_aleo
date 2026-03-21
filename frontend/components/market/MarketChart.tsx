@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Activity, Sparkles } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -133,16 +132,9 @@ export const MarketChart = ({ market }: MarketChartProps) => {
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <div className="eyebrow">
-              <Activity className="h-3.5 w-3.5" />
-              Market curve
-            </div>
-            <h2 className="mt-4 font-display text-3xl font-bold tracking-tight">
-              Market history
+            <h2 className="font-display text-3xl font-bold tracking-tight">
+              History
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Track how the current market leans across the selected range.
-            </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -232,21 +224,6 @@ export const MarketChart = ({ market }: MarketChartProps) => {
               />
             </LineChart>
           </ResponsiveContainer>
-        </div>
-
-        <div className="rounded-[24px] border border-sky-500/15 bg-sky-500/8 p-4 text-sm text-muted-foreground dark:border-sky-400/15 dark:bg-sky-400/8">
-          <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-sky-500/10 p-2 text-sky-600 dark:text-sky-300">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="font-medium text-foreground">Market view</p>
-              <p className="mt-1 leading-6">
-                Use this chart to compare both sides and follow the current
-                market leaning.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </section>

@@ -104,9 +104,6 @@ export default function MarketPage() {
           <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
             Live markets
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            {filteredMarkets.length} of {allMarkets.length} markets
-          </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="surface-muted px-4 py-4">

@@ -5,18 +5,11 @@ import { useWallet } from "@provablehq/aleo-wallet-adaptor-react";
 import {
   AlertCircle,
   BadgeDollarSign,
-  CheckCircle2,
-  Clock3,
   Eye,
-  Layers3,
   Loader2,
   PlayCircle,
   PlusCircle,
   RefreshCw,
-  ShieldCheck,
-  Sparkles,
-  Target,
-  Users2,
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -863,105 +856,39 @@ export default function LaunchpadPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <section className="relative overflow-hidden rounded-[32px] border border-white/45 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.24),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(245,158,11,0.18),_transparent_24%),linear-gradient(135deg,rgba(2,6,23,0.96),rgba(14,116,144,0.82),rgba(15,23,42,0.96))] p-6 text-white shadow-[0_30px_80px_-38px_rgba(2,6,23,0.95)] dark:border-white/10 md:p-8">
-        <div className="absolute inset-0 opacity-40">
-          <div className="section-grid h-full w-full" />
-        </div>
-
-        <div className="relative grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80 backdrop-blur-xl">
-              <Sparkles className="h-4 w-4" />
-              Standalone launchpad
-            </div>
-
-            <h1 className="mt-5 max-w-3xl font-display text-4xl font-bold tracking-tight md:text-6xl">
-              Let the community seed market liquidity before public trading opens.
-            </h1>
-
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/76 md:text-lg">
-              Upcoming markets do not need to rely only on platform-funded depth.
-              Users can commit USDCx into pre-live launch rounds, receive private
-              launch position records, and help shape stronger opening liquidity.
-            </p>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-[24px] border border-white/14 bg-white/10 p-4 backdrop-blur-xl">
-                <p className="text-xs uppercase tracking-[0.18em] text-white/55">
-                  Planned rounds
-                </p>
-                <p className="mt-2 font-display text-3xl font-bold">
-                  {launchRounds.length}
-                </p>
-              </div>
-              <div className="rounded-[24px] border border-white/14 bg-white/10 p-4 backdrop-blur-xl">
-                <p className="text-xs uppercase tracking-[0.18em] text-white/55">
-                  Capital committed
-                </p>
-                <p className="mt-2 font-display text-3xl font-bold">
-                  {formatCompactUsd(totalCommitted)}
-                </p>
-              </div>
-              <div className="rounded-[24px] border border-white/14 bg-white/10 p-4 backdrop-blur-xl">
-                <p className="text-xs uppercase tracking-[0.18em] text-white/55">
-                  Live rounds
-                </p>
-                <p className="mt-2 font-display text-3xl font-bold">
-                  {totalLiveRounds}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-[28px] border border-white/14 bg-white/10 p-5 backdrop-blur-2xl">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-white/55">
-                  Launchpad flow
-                </p>
-                <p className="mt-2 text-lg font-semibold">
-                  Real USDCx commitments with private launch positions
-                </p>
-              </div>
-              <div className="rounded-2xl bg-white/10 p-3">
-                <Layers3 className="h-5 w-5 text-white/80" />
-              </div>
-            </div>
-
-            <div className="mt-5 space-y-3">
-              {[
-                "Create a launch round before the market goes live.",
-                "Users approve USDCx and contribute private launch position records.",
-                "Contributors can decrypt and withdraw before activation.",
-                "Once the target is met, the round can be activated as launch-ready liquidity.",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/10 px-4 py-3"
-                >
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-300" />
-                  <p className="text-sm leading-6 text-white/76">{item}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-5 rounded-[22px] border border-white/10 bg-black/10 px-4 py-3 text-sm text-white/72">
-              Program: <span className="font-mono">{LAUNCHPAD_PROGRAM_ID}</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
+    <div className="space-y-8">      <section className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="eyebrow">Upcoming liquidity windows</p>
-              <h2 className="mt-3 font-display text-3xl font-bold tracking-tight">
-                Pre-live rounds users can back with USDCx
-              </h2>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="surface-muted p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                Rounds
+              </p>
+              <p className="mt-2 font-display text-3xl font-bold">
+                {launchRounds.length}
+              </p>
             </div>
+            <div className="surface-muted p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                Committed
+              </p>
+              <p className="mt-2 font-display text-3xl font-bold">
+                {formatCompactUsd(totalCommitted)}
+              </p>
+            </div>
+            <div className="surface-muted p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                Live
+              </p>
+              <p className="mt-2 font-display text-3xl font-bold">
+                {totalLiveRounds}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="font-display text-3xl font-bold tracking-tight">
+              Rounds
+            </h2>
             <Button
               type="button"
               variant="secondary"
@@ -1039,9 +966,7 @@ export default function LaunchpadPage() {
                       <h3 className="mt-3 max-w-2xl font-display text-2xl font-bold tracking-tight">
                         {round.title}
                       </h3>
-                      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                        {round.summary}
-                      </p>
+
                     </div>
 
                     <div className="rounded-[22px] border border-slate-200/70 bg-white/88 px-4 py-3 dark:border-white/10 dark:bg-white/5">
@@ -1086,7 +1011,7 @@ export default function LaunchpadPage() {
 
                   <div className="mt-5">
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>Launch readiness</span>
+                      <span>Progress</span>
                       <span>{progress.toFixed(0)}%</span>
                     </div>
                     <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200/80 dark:bg-white/10">
@@ -1105,14 +1030,9 @@ export default function LaunchpadPage() {
         <div className="space-y-5">
           <div className="surface-card p-6">
             <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  Launch console
-                </p>
-                <h2 className="mt-2 font-display text-3xl font-bold tracking-tight">
-                  {selectedPreset.title}
-                </h2>
-              </div>
+              <h2 className="font-display text-3xl font-bold tracking-tight">
+                {selectedPreset.title}
+              </h2>
               {connected && (
                 <div className="rounded-full border border-white/55 bg-white/72 px-3 py-2 text-sm font-medium dark:border-white/10 dark:bg-white/5">
                   <span className="inline-flex items-center gap-2">
@@ -1360,14 +1280,9 @@ export default function LaunchpadPage() {
 
           <div className="surface-card p-6">
             <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  Your launch positions
-                </p>
-                <h3 className="mt-2 font-display text-2xl font-bold tracking-tight">
-                  Private liquidity records
-                </h3>
-              </div>
+              <h3 className="font-display text-2xl font-bold tracking-tight">
+                Your records
+              </h3>
               <Button
                 type="button"
                 variant="secondary"
@@ -1541,79 +1456,12 @@ export default function LaunchpadPage() {
                     <p className="font-semibold text-amber-900 dark:text-amber-100">
                       Wallet connection required
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-amber-900/75 dark:text-amber-100/80">
-                      Connect an Aleo wallet from the header to create rounds,
-                      provide USDCx liquidity, and manage private launch positions.
-                    </p>
+
                   </div>
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="surface-card p-6">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              How it works
-            </p>
-            <div className="mt-5 space-y-4">
-              {[
-                {
-                  icon: Clock3,
-                  title: "1. Initialize a round",
-                  body: "Create a launch round with a target liquidity threshold and closing block.",
-                },
-                {
-                  icon: BadgeDollarSign,
-                  title: "2. Provide USDCx liquidity",
-                  body: "Contributors approve USDCx and receive a private LaunchPosition record.",
-                },
-                {
-                  icon: Users2,
-                  title: "3. Manage your position",
-                  body: "Before launch, users can decrypt and withdraw their launch liquidity position.",
-                },
-                {
-                  icon: Target,
-                  title: "4. Activate the round",
-                  body: "Once the target is reached, the round becomes launch-ready liquidity.",
-                },
-              ].map((step) => (
-                <div
-                  key={step.title}
-                  className="flex items-start gap-4 rounded-[22px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5"
-                >
-                  <div className="rounded-2xl bg-sky-500/10 p-3 text-sky-700 dark:text-sky-300">
-                    <step.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">{step.title}</p>
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      {step.body}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-5 rounded-[24px] border border-emerald-500/15 bg-emerald-500/8 p-4">
-              <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-emerald-500/12 p-3 text-emerald-600 dark:text-emerald-300">
-                  <ShieldCheck className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-semibold">Deployment note</p>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    After deploying the standalone launchpad, set{" "}
-                    <code>NEXT_PUBLIC_LAUNCHPAD_ADAPTER_ADDRESS</code> so USDCx
-                    approvals point at the deployed adapter program, then call{" "}
-                    <code>launchpad_usdcx_adapter.aleo/set_launchpad</code> once
-                    with the deployed launchpad program address.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          </div>        </div>
       </section>
     </div>
   );

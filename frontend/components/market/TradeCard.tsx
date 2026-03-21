@@ -7,7 +7,6 @@ import {
   Eye,
   Loader2,
   RefreshCw,
-  ShieldCheck,
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -929,23 +928,16 @@ export const TradeCard = ({ market }: { market: Market }) => {
 
   return (
     <section className="surface-card sticky top-6 overflow-hidden p-0">
-      <div className="border-b border-white/45 bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-950 p-5 text-white dark:border-white/10">
+      <div className="border-b border-slate-200/70 bg-white p-5 dark:border-white/10 dark:bg-slate-950/60">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
-              Onchain execution
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-bold tracking-tight">
-              Trade this market
+            <h2 className="font-display text-3xl font-bold tracking-tight">
+              Trade
             </h2>
-            <p className="mt-2 text-sm leading-6 text-white/72">
-              Review live pricing, choose a side, and route a private buy or
-              sell from the same panel.
-            </p>
           </div>
 
           {connected && (
-            <div className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium text-white backdrop-blur-xl">
+            <div className="rounded-full border border-slate-200/80 bg-white px-3 py-2 text-sm font-medium text-foreground dark:border-white/10 dark:bg-white/5">
               <span className="inline-flex items-center gap-2">
                 <Wallet className="h-4 w-4" />
                 {balanceValue} USDCx
@@ -967,10 +959,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
                 : "border-slate-200/80 bg-white/88 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/8"
             )}
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]">
-              Action
-            </p>
-            <p className="mt-2 text-lg font-semibold">Buy</p>
+            <p className="text-lg font-semibold">Buy</p>
           </button>
 
           <button
@@ -983,10 +972,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
                 : "border-slate-200/80 bg-white/88 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/8"
             )}
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]">
-              Action
-            </p>
-            <p className="mt-2 text-lg font-semibold">Sell</p>
+            <p className="text-lg font-semibold">Sell</p>
           </button>
         </div>
 
@@ -1029,8 +1015,8 @@ export const TradeCard = ({ market }: { market: Market }) => {
         </div>
 
         <div className="rounded-[28px] border border-slate-200/70 bg-white/86 p-4 dark:border-white/10 dark:bg-white/5">
-          <label className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            {tradeMode === "buy" ? "Trade amount" : "Shares to sell"}
+          <label className="text-sm font-medium text-muted-foreground">
+            {tradeMode === "buy" ? "Amount" : "Shares"}
           </label>
           <div className="relative mt-3">
             <Input
@@ -1046,36 +1032,23 @@ export const TradeCard = ({ market }: { market: Market }) => {
             </span>
           </div>
           {tradeMode === "sell" && (
-            <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+            <div className="mt-3 text-sm text-muted-foreground">
               <p>
-                Sellable from decrypted record:{" "}
+                Available:{" "}
                 <span className="font-semibold text-foreground">
                   {formatUnits(selectedSellCapacity, TOKEN_DECIMALS, 4)}
                 </span>
-              </p>
-              <p>
-                {selectedSellInput
-                  ? selectedSellRecord
-                    ? "The latest current-market position record for this side will be used for the sale."
-                    : "The decrypted current-market position record will be used for the sale."
-                  : selectedDecryptedSellRecord
-                    ? "A decrypted balance was found, but the wallet did not return a matching plaintext sell record yet."
-                    : requestRecordPlaintexts
-                      ? "Decrypt a current-market record for this outcome to show the sellable balance."
-                    : "This wallet does not expose plaintext record history needed for selling."}
               </p>
             </div>
           )}
         </div>
 
         {connected ? (
-          <div className="rounded-[28px] border border-sky-500/15 bg-sky-500/8 p-4">
+          <div className="rounded-[28px] border border-slate-200/70 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">
-                  Your private records
-                </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                <p className="text-sm font-medium">Records</p>
+                <p className="mt-2 text-sm text-muted-foreground">
                   {portfolioMessage}
                 </p>
               </div>
@@ -1100,7 +1073,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
               </Button>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Records
@@ -1115,14 +1088,6 @@ export const TradeCard = ({ market }: { market: Market }) => {
                 </p>
                 <p className="mt-2 text-base font-semibold text-foreground">
                   {Object.keys(decryptedRecords).length}
-                </p>
-              </div>
-              <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Wallet
-                </p>
-                <p className="mt-2 truncate text-base font-semibold text-foreground">
-                  {address ?? "0"}
                 </p>
               </div>
             </div>
@@ -1166,7 +1131,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0">
                           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                            Position record
+                            Record
                           </p>
                           <p className="mt-2 truncate text-sm font-medium text-foreground">
                             {record.commitment ?? "Encrypted position"}
@@ -1191,7 +1156,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
                           ) : (
                             <>
                               <Eye className="mr-2 h-4 w-4" />
-                              {decrypted ? "Decrypt Again" : "Decrypt"}
+                              Decrypt
                             </>
                           )}
                         </Button>
@@ -1232,7 +1197,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
 
                           <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                              Decrypted Content
+                              Details
                             </p>
                             <div className="mt-3 space-y-2">
                               {decrypted.rawFields.map((field) => (
@@ -1280,7 +1245,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-[24px] border border-slate-200/70 bg-white/86 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {tradeMode === "buy" ? "Est. shares" : "Est. proceeds"}
+              {tradeMode === "buy" ? "You receive" : "You receive"}
             </p>
             <p className="mt-2 text-lg font-semibold text-foreground">
               {tradeDetails.estPrimaryDisplay}
@@ -1288,7 +1253,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
           </div>
           <div className="rounded-[24px] border border-slate-200/70 bg-white/86 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Avg fill
+              Average price
             </p>
             <p className="mt-2 text-lg font-semibold text-foreground">
               ${tradeDetails.avgFillPriceDisplay}
@@ -1296,30 +1261,11 @@ export const TradeCard = ({ market }: { market: Market }) => {
           </div>
           <div className="rounded-[24px] border border-slate-200/70 bg-white/86 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {tradeMode === "buy" ? "Min shares" : "Min proceeds"}
+              {tradeMode === "buy" ? "Minimum" : "Minimum"}
             </p>
             <p className="mt-2 text-lg font-semibold text-foreground">
               {tradeDetails.minPrimaryDisplay}
             </p>
-          </div>
-        </div>
-
-        <div className="rounded-[28px] border border-emerald-500/15 bg-emerald-500/8 p-4">
-          <div className="flex items-start gap-3">
-            <div className="rounded-2xl bg-emerald-500/12 p-3 text-emerald-600 dark:text-emerald-300">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="font-semibold">
-                {tradeMode === "buy" ? "Private share purchase" : "Private share sale"}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {tradeMode === "buy"
-                  ? "Orders use onchain approval plus the market buy function."
-                  : "Sales use your decrypted private position record plus the market sell function."}{" "}
-                The selected side right now is <strong>{selectedOutcomeLabel}</strong>.
-              </p>
-            </div>
           </div>
         </div>
 
