@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { notFound, useParams } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
+import { CircleDollarSign, ShieldCheck, Users } from "lucide-react";
 import { MarketChart } from "@/components/market/MarketChart";
 import { MarketHeader } from "@/components/market/MarketHeader";
 import { MarketOpinions } from "@/components/market/MarketOpinions";
@@ -68,44 +68,49 @@ export default function MarketPage() {
         <div className="space-y-6">
           <section className="grid gap-4 md:grid-cols-3">
             <div className="surface-card p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                Verification
-              </p>
-              <div className="mt-4 flex items-center gap-3">
+              <div className="flex items-center gap-3">
                 <div className="rounded-2xl bg-emerald-500/10 p-3 text-emerald-600 dark:text-emerald-300">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-semibold">Rule-based resolution</p>
-                  <p className="text-sm text-muted-foreground">
-                    Outcome follows the written market terms and listed source.
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    Resolution
+                  </p>
+                  <p className="mt-1 font-semibold">Rule-based</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="surface-card p-5">
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-sky-500/10 p-3 text-sky-600 dark:text-sky-300">
+                  <CircleDollarSign className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    Volume
+                  </p>
+                  <p className="mt-1 font-display text-3xl font-bold tracking-tight">
+                    {market.currency} {market.volume}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="surface-card p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                Liquidity
-              </p>
-              <p className="mt-4 font-display text-3xl font-bold tracking-tight">
-                {market.currency} {market.volume}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Current displayed market volume on this listing.
-              </p>
-            </div>
-
-            <div className="surface-card p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                Participation
-              </p>
-              <p className="mt-4 font-display text-3xl font-bold tracking-tight">
-                {market.participants}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Represented participants following this market so far.
-              </p>
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-amber-500/10 p-3 text-amber-600 dark:text-amber-300">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    Participants
+                  </p>
+                  <p className="mt-1 font-display text-3xl font-bold tracking-tight">
+                    {market.participants}
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
 
