@@ -2,12 +2,13 @@
 
 This folder contains the onchain programs used by True Markets.
 
-There are two independent stacks:
+There are three independent stacks:
 
 - the original market trading stack
+- the standalone P2P betting stack
 - the standalone launchpad stack
 
-The standalone launchpad contracts do not change the original market contracts.
+The standalone P2P and launchpad contracts do not change the original market contracts.
 
 ## Contract List
 
@@ -133,6 +134,68 @@ Important:
 - `set_launchpad` is one-time only
 - if you configure the wrong launchpad address, redeploy the adapter
 
+## `p2p_usdcx_adapter`
+
+Path: [`p2p_usdcx_adapter/src/main.leo`](./p2p_usdcx_adapter/src/main.leo)
+
+Purpose:
+
+- isolated token adapter for private head-to-head bets
+- only the configured P2P program can move USDCx through it
+
+Main transitions:
+
+- `set_p2p`
+- `pull_from_user`
+- `push_to_user`
+
+Required setup after deployment:
+
+1. deploy the adapter
+2. deploy the P2P program
+3. call `set_p2p` once with the deployed P2P address
+
+Important:
+
+- `set_p2p` is one-time only
+- if you configure the wrong P2P address, redeploy the adapter
+
+## `true_private_p2p`
+
+Path: [`true_private_p2p/src/main.leo`](./true_private_p2p/src/main.leo)
+
+Purpose:
+
+- create private two-sided bet markets
+- create private offer records in USDCx
+- accept a shared private offer with the opposite side
+- resolve, cancel, claim, and refund matched bets
+
+Main data types:
+
+- `Market`
+- `BetOffer`
+- `MatchedBet`
+
+Main transitions:
+
+- `create_market`
+- `create_offer_private`
+- `cancel_offer_private`
+- `accept_offer_private`
+- `resolve_market`
+- `cancel_market`
+- `claim_private`
+- `refund_private`
+
+Operational notes:
+
+- creating an offer returns a private `BetOffer` record
+- matching an offer consumes the offer and returns two private `MatchedBet` records
+- the offer record must be shared off-chain with the counterparty
+- creator resolves or cancels after market close
+- users must approve the P2P adapter before creating or matching offers
+
 ## `true_market_launchpad`
 
 Path: [`true_market_launchpad/src/main.leo`](./true_market_launchpad/src/main.leo)
@@ -185,11 +248,21 @@ Recommended order:
 3. deploy `true_market_launchpad`
 4. call `launchpad_usdcx_adapter/set_launchpad(launchpad_address)`
 
+### Standalone P2P stack
+
+Recommended order:
+
+1. deploy or point to `test_usdcx_stablecoin`
+2. deploy `p2p_usdcx_adapter`
+3. deploy `true_private_p2p`
+4. call `p2p_usdcx_adapter/set_p2p(p2p_address)`
+
 ## Required User Approvals
 
 Before token movement can happen:
 
 - market users must call `approve_public(adapter_address, amount)` for `usdcx_token_adapter`
+- P2P users must call `approve_public(adapter_address, amount)` for `p2p_usdcx_adapter`
 - launchpad users must call `approve_public(adapter_address, amount)` for `launchpad_usdcx_adapter`
 
 Without approval, `pull_from_user` will fail because the adapter uses `transfer_from_public`.
@@ -225,6 +298,11 @@ Market trading produces:
 
 - `Position` records from `ture_prediction_market1`
 
+P2P betting produces:
+
+- `BetOffer` records from `true_private_p2p`
+- `MatchedBet` records from `true_private_p2p`
+
 Launchpad contributions produce:
 
 - `LaunchPosition` records from `true_market_launchpad`
@@ -235,6 +313,7 @@ These records are intended to be fetched from the wallet and decrypted client-si
 
 The current frontend:
 
+- reads P2P market state from the `markets` mapping
 - reads launch rounds from the `rounds` mapping
 - reads token balances from the token program mappings
 - loads encrypted records from the wallet

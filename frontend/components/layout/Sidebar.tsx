@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   Compass,
   Droplets,
+  HandCoins,
   Menu,
   Settings2,
   Sparkles,
@@ -24,6 +25,7 @@ interface NavItem {
 
 const mainNavigation: NavItem[] = [
   { name: "Markets", href: "/market", icon: Compass },
+  { name: "P2P Bets", href: "/p2p", icon: HandCoins },
   { name: "Launchpad", href: "/launchpad", icon: Sparkles },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { name: "Faucet", href: "/faucet", icon: Droplets },

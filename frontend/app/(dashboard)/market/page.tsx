@@ -12,6 +12,7 @@ import {
   Tv,
   X,
 } from "lucide-react";
+import { BetModeSwitch } from "@/components/BetModeSwitch";
 import { MarketCard } from "@/components/MarketCard";
 import { data as allMarkets } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -99,10 +100,12 @@ export default function MarketPage() {
 
   return (
     <div className="space-y-6">
+      <BetModeSwitch active="amm" />
+
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_420px]">
         <div className="surface-card p-6 md:p-8">
           <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-            Live markets
+            AMM markets
           </h2>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">

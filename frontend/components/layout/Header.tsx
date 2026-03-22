@@ -13,6 +13,7 @@ const pageTitles: Array<{
 }> = [
   { match: (pathname) => pathname.startsWith("/market/"), title: "Market" },
   { match: (pathname) => pathname === "/market", title: "Markets" },
+  { match: (pathname) => pathname === "/p2p", title: "P2P Bets" },
   { match: (pathname) => pathname === "/launchpad", title: "Launchpad" },
   { match: (pathname) => pathname === "/leaderboard", title: "Leaderboard" },
   { match: (pathname) => pathname === "/faucet", title: "Faucet" },

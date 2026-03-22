@@ -1,11 +1,12 @@
 # True Markets
 
-True Markets is an Aleo-based prediction market app with private position handling, AMM-style trading, and a standalone launchpad for community-funded pre-market liquidity.
+True Markets is an Aleo-based prediction market app with private position handling, AMM-style trading, private P2P betting, and a standalone launchpad for community-funded pre-market liquidity.
 
 This repository contains:
 
-- a Next.js frontend for browsing markets, trading, decrypting private positions, and contributing launchpad liquidity
+- a Next.js frontend for AMM markets, private P2P bets, private position decryption, and launchpad liquidity
 - a market contract stack for live prediction trading
+- a separate P2P contract stack for private head-to-head USDCx bets
 - a separate launchpad contract stack for pre-live USDCx liquidity commitments
 
 ## What Is Included
@@ -15,6 +16,7 @@ This repository contains:
 The frontend lives in [`frontend/`](./frontend) and includes:
 
 - market list and market detail pages
+- private P2P bet page
 - private buy and sell flows
 - wallet-based record loading and decryption
 - a launchpad page for providing and withdrawing pre-live liquidity
@@ -23,7 +25,7 @@ The frontend lives in [`frontend/`](./frontend) and includes:
 
 ### Contracts
 
-The contracts live in [`contracts/`](./contracts) and are split into two independent stacks:
+The contracts live in [`contracts/`](./contracts) and are split into three independent stacks:
 
 - market stack
   - `true_market_token`
@@ -33,6 +35,9 @@ The contracts live in [`contracts/`](./contracts) and are split into two indepen
 - standalone launchpad stack
   - `launchpad_usdcx_adapter`
   - `true_market_launchpad`
+- standalone P2P stack
+  - `p2p_usdcx_adapter`
+  - `true_private_p2p`
 
 The launchpad contracts are separate and do not modify the original market contracts.
 
@@ -45,6 +50,8 @@ aleo/
 |  |- test_usdcx_stablecoin/
 |  |- usdcx_token_adapter/
 |  |- ture_prediction_market1/
+|  |- p2p_usdcx_adapter/
+|  |- true_private_p2p/
 |  |- launchpad_usdcx_adapter/
 |  |- true_market_launchpad/
 |- frontend/
@@ -79,6 +86,17 @@ Users can:
 - withdraw before the round goes live
 - activate a round once the target or close condition is met
 
+### P2P Betting
+
+Users can:
+
+- open a P2P market
+- create a private offer in USDCx
+- share the encrypted offer record directly with a counterparty
+- match a shared offer with the opposite side
+- decrypt offer and matched bet records from the wallet
+- claim or refund after market settlement
+
 ## Prerequisites
 
 Recommended local versions:
@@ -108,7 +126,7 @@ pnpm lint
 
 ## Frontend Environment
 
-The current frontend uses these environment variables for the standalone launchpad:
+The current frontend uses these environment variables for standalone contract stacks:
 
 - `NEXT_PUBLIC_LAUNCHPAD_PROGRAM_ID`
   - optional
@@ -116,6 +134,12 @@ The current frontend uses these environment variables for the standalone launchp
 - `NEXT_PUBLIC_LAUNCHPAD_ADAPTER_ADDRESS`
   - required for the launchpad approve flow
   - should be set to the deployed `launchpad_usdcx_adapter.aleo` address
+- `NEXT_PUBLIC_P2P_PROGRAM_ID`
+  - optional
+  - defaults to `true_private_p2p.aleo`
+- `NEXT_PUBLIC_P2P_ADAPTER_ADDRESS`
+  - required for the P2P approve flow
+  - should be set to the deployed `p2p_usdcx_adapter.aleo` address
 
 If you are using the AI chat route, make sure the model provider credentials required by your deployment are also configured in your runtime environment.
 
@@ -125,6 +149,7 @@ Important pages:
 
 - `/market`
 - `/market/[id]`
+- `/p2p`
 - `/launchpad`
 - `/faucet`
 - `/leaderboard`
@@ -140,6 +165,8 @@ High level summary:
 - `test_usdcx_stablecoin`: local ABI-facing token dependency used by adapters
 - `usdcx_token_adapter`: adapter that only allows the configured market program to move USDCx
 - `ture_prediction_market1`: AMM market logic for creating, buying, selling, resolving, and claiming
+- `p2p_usdcx_adapter`: adapter that only allows the configured P2P program to move USDCx
+- `true_private_p2p`: private offer, matching, settlement, and payout logic for head-to-head bets
 - `launchpad_usdcx_adapter`: adapter that only allows the configured launchpad program to move USDCx
 - `true_market_launchpad`: standalone round creation, liquidity contribution, withdrawal, and activation
 
@@ -162,6 +189,14 @@ After deploying the standalone launchpad stack:
 3. create rounds with `create_round`
 4. make sure users approve the launchpad adapter before contributing liquidity
 
+### P2P Stack
+
+After deploying the standalone P2P stack:
+
+1. deploy the adapter and P2P program
+2. call `p2p_usdcx_adapter.aleo/set_p2p` once with the deployed P2P address
+3. make sure users approve the P2P adapter before creating or matching offers
+
 ## Notes About Program Names
 
 Some frontend constants may point to a deployed program name that differs from the local source folder name you are editing. This is normal during iteration. Always verify the program name and deployed address used by your current environment before demoing.
@@ -175,9 +210,12 @@ For a clean demo:
 3. buy a private position
 4. decrypt the current-market record and show holdings
 5. sell part of the position
-6. open `/launchpad`
-7. approve USDCx and provide launch liquidity
-8. decrypt the launch position record
+6. open `/p2p`
+7. create a private offer and decrypt it
+8. paste the shared record into a second wallet to match it
+9. open `/launchpad`
+10. approve USDCx and provide launch liquidity
+11. decrypt the launch position record
 
 ## Contracts Documentation
 
