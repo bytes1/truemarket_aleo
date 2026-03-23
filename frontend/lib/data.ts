@@ -21,22 +21,22 @@ export interface Market {
 }
 
 export const data: Market[] = [
-  
-  {
-  market_id: 1,
-  market_title: "Did True Markets win a prize in Aleo Buildathon Wave 2?",
-  category: "Crypto",
-  outcome_a: "YES",
-  outcome_b: "NO",
-  yesPercentage: 50,
-  noPercentage: 50,
-  volume: "0 USD",
-  participants: 0,
-  deadline: "Feb 28, 2026",
-  marketType: "Binary",
-  currency: "USD",
 
-  market_data: `Hackathon: Did True Markets officially win a prize or receive a winning position in Aleo Buildathon Wave 2 concluding in February 2026?
+  {
+    market_id: 1,
+    market_title: "Did True Markets win a prize in Aleo Buildathon Wave 4?",
+    category: "Crypto",
+    outcome_a: "YES",
+    outcome_b: "NO",
+    yesPercentage: 51,
+    noPercentage: 49,
+    volume: "100",
+    participants: 3,
+    deadline: "April 15, 2026",
+    marketType: "Binary",
+    currency: "USD",
+
+    market_data: `Hackathon: Did True Markets officially win a prize or receive a winning position in Aleo Buildathon Wave 2 concluding in February 2026?
 
 **Market Dates:**
 
@@ -65,12 +65,12 @@ This market will be canceled if:
 - True Markets withdraws or is disqualified before results.
 
 If canceled, participants may claim their position value at the time of cancellation.`,
-  
-  image:
-    "https://ipfs.io/ipfs/bafkreibchzlqacwxyepuae4drzxtoktajlyfu3ddnbldj5ibnyy3wbkt2m",
 
-  cardStyle: "image",
-},
+    image:
+      "https://ipfs.io/ipfs/bafkreibchzlqacwxyepuae4drzxtoktajlyfu3ddnbldj5ibnyy3wbkt2m",
+
+    cardStyle: "image",
+  },
   {
     market_id: 2,
     market_title: "Gold vs ETH - Which hits $5K first?",
@@ -108,7 +108,7 @@ If canceled, participants may claim their position value at the time of cancella
     isFlashMarket: true,
     cardStyle: "image", // <-- NEW: Standard image card
   }, // Will Donald Trump visit China in 2026?
-  
-  
+
+
 
 ];

@@ -41,6 +41,36 @@ The contracts live in [`contracts/`](./contracts) and are split into three indep
 
 The launchpad contracts are separate and do not modify the original market contracts.
 
+## Newly Implemented Features
+
+These are the main product features now implemented in this repository.
+
+### Private AMM Trading
+
+- market browse and detail pages with pool state and market metadata
+- private buy flow that approves USDCx and submits `buy_private`
+- private sell flow that reloads wallet records, decrypts positions, and uses a sellable record input for `sell_private`
+- decrypted per-market holdings summaries for Yes and No positions
+
+### Private P2P Invites
+
+- standalone P2P page with create-invite and accept-invite flows
+- private invite payload generation with copy, email, and native share actions
+- onchain invite status lookup before matching so users can confirm the offer is still open
+- wallet record loading, local decryption, and post-settlement claim or refund actions
+
+### Standalone Launchpad Liquidity
+
+- standalone launchpad rounds with target liquidity, committed totals, close block, and round status
+- initialize-round, provide-liquidity, withdraw-liquidity, and activate-round frontend flows
+- private launch position record decryption with round-aware totals and withdrawal support
+- launchpad-specific USDCx adapter and contract stack that stays separate from the core market contracts
+
+### Wallet and Support Tooling
+
+- wallet-based record loading and local decrypt flows across market, P2P, and launchpad pages
+- faucet route for test token setup during demos and local testing
+- AI chat API route for in-app assistance
 ## Repository Layout
 
 ```text
@@ -226,4 +256,5 @@ Use [`contracts/README.md`](./contracts/README.md) for:
 - required one-time setup calls
 - token approval expectations
 - launchpad-specific notes
+
 

@@ -28,7 +28,7 @@ export const MarketHeader = ({ market, details }: MarketHeaderProps) => {
     sourceName: "Resolution source",
   };
   const sourceHref =
-    resolvedDetails.sourceLink !== "#" ? resolvedDetails.sourceLink : null;
+    resolvedDetails.sourceLink !== "#" ? resolvedDetails.sourceLink : undefined;
   const categories = Array.isArray(resolvedDetails.categories)
     ? resolvedDetails.categories
     : resolvedDetails.categories

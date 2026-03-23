@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useWallet } from "@provablehq/aleo-wallet-adaptor-react";
-import { AlertCircle, Copy, Eye, Loader2, RefreshCw, Wallet } from "lucide-react";
+import {
+  AlertCircle,
+  Copy,
+  Eye,
+  Loader2,
+  Mail,
+  RefreshCw,
+  Share2,
+  Wallet,
+} from "lucide-react";
 import { BetModeSwitch } from "@/components/BetModeSwitch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -251,6 +260,23 @@ function parseInvitePayload(value: string): InvitePayload | null {
   }
 }
 
+function buildInviteShareText(
+  invite: InvitePayload,
+  marketTitle: string,
+  outcomeLabel: string,
+  stake: bigint
+) {
+  return [
+    `True Markets P2P invite`,
+    `Market: ${marketTitle}`,
+    `Side: ${outcomeLabel}`,
+    `Stake: ${formatUnits(stake, TOKEN_DECIMALS, 4)} USDCx`,
+    "",
+    "Paste this private invite into the P2P Accept Invite box:",
+    JSON.stringify(invite),
+  ].join("\n");
+}
+
 export default function P2PPage() {
   const wallet = useWallet() as ReturnType<typeof useWallet> & {
     requestRecords?: (programId: string, filterSpent?: boolean) => Promise<unknown>;
@@ -300,6 +326,19 @@ export default function P2PPage() {
       ),
     [bets, selectedMarket.market_id]
   );
+  const latestInviteShareText = useMemo(() => {
+    if (!latestInvite || !latestInviteOffer) return "";
+    const outcomeLabel =
+      latestInvite.outcome === "0u8"
+        ? selectedMarket.outcome_a
+        : selectedMarket.outcome_b;
+    return buildInviteShareText(
+      latestInvite,
+      selectedMarket.market_title,
+      outcomeLabel,
+      latestInviteOffer.stake
+    );
+  }, [latestInvite, latestInviteOffer, selectedMarket]);
   const canCreateOffer =
     connected &&
     !isProcessing &&
@@ -603,14 +642,44 @@ export default function P2PPage() {
   };
 
   const handleCopyInvite = async () => {
-    if (!latestInvite) return;
+    if (!latestInviteShareText) return;
 
     try {
-      await navigator.clipboard.writeText(JSON.stringify(latestInvite));
+      await navigator.clipboard.writeText(latestInviteShareText);
       setStatus("Invite copied.");
     } catch (error) {
       console.error("Copy invite error:", error);
       setStatus("Unable to copy invite.");
+    }
+  };
+
+  const handleEmailInvite = () => {
+    if (!latestInviteShareText) return;
+    const subject = encodeURIComponent(`True Markets P2P invite`);
+    const body = encodeURIComponent(latestInviteShareText);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  };
+
+  const handleShareInvite = async () => {
+    if (!latestInviteShareText) return;
+
+    if (typeof navigator === "undefined" || !("share" in navigator)) {
+      setStatus("Native sharing is not available on this device.");
+      return;
+    }
+
+    try {
+      await navigator.share({
+        title: "True Markets P2P invite",
+        text: latestInviteShareText,
+      });
+      setStatus("Invite shared.");
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
+      console.error("Share invite error:", error);
+      setStatus("Unable to share invite.");
     }
   };
 
@@ -965,7 +1034,7 @@ export default function P2PPage() {
 
                         <textarea
                           readOnly
-                          value={JSON.stringify(latestInvite)}
+                          value={latestInviteShareText || JSON.stringify(latestInvite)}
                           className="h-28 w-full rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-xs outline-none dark:border-white/10 dark:bg-slate-950/25"
                         />
 
@@ -978,6 +1047,24 @@ export default function P2PPage() {
                           >
                             <Copy className="mr-2 h-4 w-4" />
                             Copy invite
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            className="h-11 rounded-2xl"
+                            onClick={handleEmailInvite}
+                            disabled={isProcessing}
+                          >
+                            <Mail className="mr-2 h-4 w-4" />
+                            Email invite
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            className="h-11 rounded-2xl"
+                            onClick={handleShareInvite}
+                            disabled={isProcessing}
+                          >
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Share invite
                           </Button>
                           <Button
                             variant="secondary"
