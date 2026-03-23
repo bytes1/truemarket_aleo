@@ -948,97 +948,105 @@ export const TradeCard = ({ market }: { market: Market }) => {
       </div>
 
       <div className="space-y-5 p-5">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-lg">
           <button
             type="button"
             onClick={() => setTradeMode("buy")}
             className={cn(
-              "rounded-[24px] border px-4 py-3 text-left transition-all duration-200",
+              "flex-1 rounded-md px-4 py-1.5 text-sm font-semibold transition-all duration-200 text-center",
               tradeMode === "buy"
-                ? "border-transparent bg-slate-950 text-white shadow-[0_18px_35px_-24px_rgba(15,23,42,0.85)]"
-                : "border-slate-200/80 bg-white/88 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/8"
+                ? "bg-white text-slate-900 shadow-sm dark:bg-[#1C1C1E] dark:text-white"
+                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             )}
           >
-            <p className="text-lg font-semibold">Buy</p>
+            Buy
           </button>
 
           <button
             type="button"
             onClick={() => setTradeMode("sell")}
             className={cn(
-              "rounded-[24px] border px-4 py-3 text-left transition-all duration-200",
+              "flex-1 rounded-md px-4 py-1.5 text-sm font-semibold transition-all duration-200 text-center",
               tradeMode === "sell"
-                ? "border-transparent bg-emerald-500 text-white shadow-[0_18px_35px_-24px_rgba(16,185,129,0.85)]"
-                : "border-slate-200/80 bg-white/88 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/8"
+                ? "bg-white text-slate-900 shadow-sm dark:bg-[#1C1C1E] dark:text-white"
+                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             )}
           >
-            <p className="text-lg font-semibold">Sell</p>
+            Sell
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 mt-2">
           <button
             type="button"
             onClick={() => setOutcome("yes")}
             className={cn(
-              "rounded-[24px] border p-4 text-left transition-all duration-200",
+              "rounded border p-3 flex flex-col justify-between transition-all duration-200",
               outcome === "yes"
-                ? "border-transparent bg-sky-500 text-white shadow-[0_18px_35px_-24px_rgba(14,165,233,0.85)]"
-                : "border-slate-200/80 bg-white/88 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/8"
+                ? "border-blue-500 bg-blue-50/50 dark:border-[#0041FF] dark:bg-[#0041FF]/10"
+                : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
             )}
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]">
+            <span className={cn(
+                "text-sm font-semibold",
+                outcome === "yes" ? "text-blue-600 dark:text-[#0041FF]" : "text-slate-600 dark:text-slate-400"
+            )}>
               {market.outcome_a}
-            </p>
-            <p className="mt-3 font-display text-3xl font-bold">
+            </span>
+            <span className="mt-1 font-mono text-xl font-bold text-slate-900 dark:text-slate-100">
               ${tradeDetails.yesPriceDisplay}
-            </p>
+            </span>
           </button>
 
           <button
             type="button"
             onClick={() => setOutcome("no")}
             className={cn(
-              "rounded-[24px] border p-4 text-left transition-all duration-200",
+              "rounded border p-3 flex flex-col justify-between transition-all duration-200",
               outcome === "no"
-                ? "border-transparent bg-amber-400 text-slate-950 shadow-[0_18px_35px_-24px_rgba(245,158,11,0.8)]"
-                : "border-slate-200/80 bg-white/88 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/8"
+                ? "border-red-500 bg-red-50/50 dark:border-[#FF0054] dark:bg-[#FF0054]/10"
+                : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
             )}
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]">
+            <span className={cn(
+                "text-sm font-semibold",
+                outcome === "no" ? "text-red-500 dark:text-[#FF0054]" : "text-slate-600 dark:text-slate-400"
+            )}>
               {market.outcome_b}
-            </p>
-            <p className="mt-3 font-display text-3xl font-bold">
+            </span>
+            <span className="mt-1 font-mono text-xl font-bold text-slate-900 dark:text-slate-100">
               ${tradeDetails.noPriceDisplay}
-            </p>
+            </span>
           </button>
         </div>
 
-        <div className="rounded-[28px] border border-slate-200/70 bg-white/86 p-4 dark:border-white/10 dark:bg-white/5">
-          <label className="text-sm font-medium text-muted-foreground">
-            {tradeMode === "buy" ? "Amount" : "Shares"}
-          </label>
-          <div className="relative mt-3">
+        <div className="mt-2 rounded border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#1C1C1E]">
+          <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100 dark:border-white/5">
+              <label className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                {tradeMode === "buy" ? "Amount" : "Shares"}
+              </label>
+              <span className="text-sm font-semibold text-slate-400 dark:text-slate-500">
+                {tradeMode === "buy" ? "USDCx" : "Shares"}
+              </span>
+          </div>
+          <div className="relative">
             <Input
               type="number"
               value={amountStr}
               onChange={(event) => setAmountStr(event.target.value)}
               placeholder="0.00"
-              className="h-14 rounded-2xl border-slate-200/80 bg-white pr-20 text-xl font-semibold shadow-none dark:border-white/10 dark:bg-slate-950/35"
+              className="h-10 border-0 bg-transparent text-xl font-mono shadow-none focus-visible:ring-0 p-0 text-slate-900 dark:text-white"
               disabled={isProcessing}
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
-              {tradeMode === "buy" ? "USDCx" : "Shares"}
-            </span>
           </div>
           {tradeMode === "sell" && (
-            <div className="mt-3 text-sm text-muted-foreground">
-              <p>
+            <div className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              <span>
                 Available:{" "}
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-slate-900 dark:text-white">
                   {formatUnits(selectedSellCapacity, TOKEN_DECIMALS, 4)}
                 </span>
-              </p>
+              </span>
             </div>
           )}
         </div>
@@ -1150,13 +1158,13 @@ export const TradeCard = ({ market }: { market: Market }) => {
                         >
                           {decryptingKey === key ? (
                             <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Decrypting
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />
+                              Generating ZK Proof...
                             </>
                           ) : (
                             <>
-                              <Eye className="mr-2 h-4 w-4" />
-                              Decrypt
+                              <Eye className="mr-2 h-4 w-4 text-primary" />
+                              Local ZK Decrypt
                             </>
                           )}
                         </Button>
@@ -1270,7 +1278,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
         </div>
 
         <Button
-          className="h-14 w-full rounded-2xl text-base font-semibold shadow-[0_20px_45px_-28px_rgba(14,165,233,0.9)]"
+          className="h-14 w-full rounded-2xl text-base font-semibold shadow-[0_0_20px_rgba(var(--primary),0.25)] bg-primary text-primary-foreground hover:bg-primary/90 transition-all border border-primary/50"
           onClick={onAction}
           disabled={
             !connected ||
@@ -1289,7 +1297,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
           {isProcessing ? (
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           ) : (
-            `${tradeMode === "buy" ? "Buy" : "Sell"} ${selectedOutcomeLabel}`
+            `${tradeMode === "buy" ? "Buy" : "Sell"} ${selectedOutcomeLabel} (Private)`
           )}
         </Button>
 

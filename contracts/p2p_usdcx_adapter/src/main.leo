@@ -1,19 +1,27 @@
 import test_usdcx_stablecoin.aleo;
 
-program p2p_usdcx_adapter.aleo {
+program p2p_usdcx_adapter_v2.aleo {
     const P2P_SLOT: u8 = 0u8;
+    const ADMIN_SLOT: u8 = 1u8;
 
     mapping configured_p2p: u8 => address;
+    mapping adapter_admin: u8 => address;
 
     @noupgrade
     async constructor() {}
 
     async transition set_p2p(public p2p: address) -> Future {
-        return finalize_set_p2p(p2p);
+        return finalize_set_p2p(self.caller, p2p);
     }
 
-    async function finalize_set_p2p(p2p: address) {
-        assert(!Mapping::contains(configured_p2p, P2P_SLOT));
+    async function finalize_set_p2p(caller: address, p2p: address) {
+        if Mapping::contains(adapter_admin, ADMIN_SLOT) {
+            let admin: address = Mapping::get(adapter_admin, ADMIN_SLOT);
+            assert(caller == admin);
+        } else {
+            Mapping::set(adapter_admin, ADMIN_SLOT, caller);
+        }
+
         Mapping::set(configured_p2p, P2P_SLOT, p2p);
     }
 
@@ -45,3 +53,4 @@ program p2p_usdcx_adapter.aleo {
         transfer.await();
     }
 }
+

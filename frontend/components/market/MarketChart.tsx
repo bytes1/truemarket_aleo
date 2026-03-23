@@ -146,8 +146,8 @@ export const MarketChart = ({ market }: MarketChartProps) => {
                 className={cn(
                   "rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
                   timeframe === value
-                    ? "border-transparent bg-slate-950 text-white shadow-[0_16px_30px_-22px_rgba(15,23,42,0.9)] dark:bg-white dark:text-slate-950"
-                    : "border-slate-200/80 bg-white/88 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/8"
+                    ? "border-primary/50 bg-primary/10 text-primary shadow-[0_0_15px_rgba(var(--primary),0.15)] font-medium"
+                    : "border-slate-800 bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
                 )}
               >
                 {value}
@@ -157,25 +157,27 @@ export const MarketChart = ({ market }: MarketChartProps) => {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-[24px] border border-slate-200/70 bg-white/84 p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-black/20 p-4 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               {market.outcome_a}
             </p>
-            <p className="mt-2 font-display text-4xl font-bold tracking-tight text-sky-600 dark:text-sky-300">
+            <p className="mt-2 font-display text-4xl font-bold tracking-tight text-primary">
               {market.yesPercentage}%
             </p>
           </div>
-          <div className="rounded-[24px] border border-slate-200/70 bg-white/84 p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-black/20 p-4 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-destructive/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               {market.outcome_b}
             </p>
-            <p className="mt-2 font-display text-4xl font-bold tracking-tight text-amber-500 dark:text-amber-300">
+            <p className="mt-2 font-display text-4xl font-bold tracking-tight text-destructive">
               {market.noPercentage}%
             </p>
           </div>
         </div>
 
-        <div className="h-[360px] rounded-[28px] border border-slate-200/70 bg-gradient-to-br from-white via-sky-50/30 to-white p-4 dark:border-white/10 dark:bg-gradient-to-br dark:from-slate-950 dark:via-sky-950/20 dark:to-slate-950">
+        <div className="h-[360px] rounded-[28px] border border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-black/20 p-4 relative">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
@@ -209,7 +211,7 @@ export const MarketChart = ({ market }: MarketChartProps) => {
               <Line
                 type="monotone"
                 dataKey="yesProbability"
-                stroke="#0ea5e9"
+                stroke="var(--color-primary)"
                 strokeWidth={3}
                 dot={false}
                 name={market.outcome_a}
@@ -217,7 +219,7 @@ export const MarketChart = ({ market }: MarketChartProps) => {
               <Line
                 type="monotone"
                 dataKey="noProbability"
-                stroke="#f59e0b"
+                stroke="var(--color-destructive)"
                 strokeWidth={3}
                 dot={false}
                 name={market.outcome_b}

@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
 const P2P_PROGRAM_ID =
-  process.env.NEXT_PUBLIC_P2P_PROGRAM_ID ?? "true_private_p2p.aleo";
+  process.env.NEXT_PUBLIC_P2P_PROGRAM_ID ?? "true_private_p2p_v2.aleo";
 const P2P_ADAPTER_ADDRESS =
-  process.env.NEXT_PUBLIC_P2P_ADAPTER_ADDRESS ?? "p2p_usdcx_adapter.aleo";
+  process.env.NEXT_PUBLIC_P2P_ADAPTER_ADDRESS ?? "p2p_usdcx_adapter_v2.aleo";
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";
 const TOKEN_DECIMALS = 6;
 
@@ -52,12 +52,17 @@ type BetView = {
   recordInput: string | null;
 };
 
+type OfferCommitmentView = {
+  offerId: string;
+  marketId: number;
+  stake: bigint;
+  isOpen: boolean;
+};
+
 type InvitePayload = {
   version: 1;
   offerId: string;
   maker: string;
-  marketId: string;
-  stake: string;
   outcome: string;
   salt: string;
 };
@@ -196,6 +201,20 @@ function buildBetInput(decrypted: unknown) {
   return `{ owner: ${owner}, market_id: ${marketId}, outcome: ${outcome}, stake: ${stake}, counterparty: ${counterparty}, _nonce: ${nonce}, _version: ${version} }`;
 }
 
+function parseOfferCommitment(
+  text: string | null,
+  offerId: string
+): OfferCommitmentView | null {
+  if (!text) return null;
+
+  return {
+    offerId,
+    marketId: Number(text.match(/market_id:\s*(\d+)/)?.[1] ?? 0),
+    stake: BigInt(text.match(/stake:\s*(\d+)/)?.[1] ?? "0"),
+    isOpen: (text.match(/is_open:\s*(true|false)/)?.[1] ?? "false") === "true",
+  };
+}
+
 function createRandomField() {
   const values = crypto.getRandomValues(new Uint32Array(4));
   let result = 0n;
@@ -221,8 +240,6 @@ function parseInvitePayload(value: string): InvitePayload | null {
       parsed.version !== 1 ||
       typeof parsed.offerId !== "string" ||
       typeof parsed.maker !== "string" ||
-      typeof parsed.marketId !== "string" ||
-      typeof parsed.stake !== "string" ||
       typeof parsed.outcome !== "string" ||
       typeof parsed.salt !== "string"
     ) {
@@ -250,13 +267,17 @@ export default function P2PPage() {
   const [stakeStr, setStakeStr] = useState("");
   const [inviteInput, setInviteInput] = useState("");
   const [latestInvite, setLatestInvite] = useState<InvitePayload | null>(null);
+  const [latestInviteOffer, setLatestInviteOffer] = useState<OfferCommitmentView | null>(null);
+  const [inviteOffer, setInviteOffer] = useState<OfferCommitmentView | null>(null);
   const [balanceAtomic, setBalanceAtomic] = useState(0n);
   const [balanceValue, setBalanceValue] = useState("0.00");
   const [marketStates, setMarketStates] = useState<Record<number, MarketState>>({});
   const [records, setRecords] = useState<WalletRecord[]>([]);
   const [bets, setBets] = useState<Record<string, BetView>>({});
   const [status, setStatus] = useState("");
-  const [recordMessage, setRecordMessage] = useState("Connect a wallet to load records.");
+  const [recordMessage, setRecordMessage] = useState(
+    "This contract version settles from invite details and offer state, not wallet records."
+  );
   const [decryptingKey, setDecryptingKey] = useState<string | null>(null);
   const [isRefreshingMarkets, setIsRefreshingMarkets] = useState(false);
   const [isRefreshingRecords, setIsRefreshingRecords] = useState(false);
@@ -289,7 +310,9 @@ export default function P2PPage() {
     connected &&
     !isProcessing &&
     !!invitePreview &&
-    invitePreview.marketId === `${selectedMarket.market_id}field`;
+    !!inviteOffer &&
+    inviteOffer.isOpen &&
+    inviteOffer.marketId === selectedMarket.market_id;
 
   const refreshMarkets = async () => {
     try {
@@ -319,6 +342,11 @@ export default function P2PPage() {
       );
 
       setMarketStates(Object.fromEntries(nextStates));
+
+      if (latestInvite) {
+        const offerText = await fetchMappingValue(P2P_PROGRAM_ID, "offers", latestInvite.offerId);
+        setLatestInviteOffer(parseOfferCommitment(offerText, latestInvite.offerId));
+      }
     } catch (error) {
       console.error("P2P market refresh error:", error);
     } finally {
@@ -327,47 +355,13 @@ export default function P2PPage() {
   };
 
   const loadRecords = async () => {
-    if (!connected) {
-      setRecords([]);
-      setBets({});
-      setRecordMessage("Connect a wallet to load records.");
-      return;
-    }
-
-    if (!requestRecords) {
-      setRecords([]);
-      setBets({});
-      setRecordMessage("This wallet does not expose private record lookup.");
-      return;
-    }
-
-    try {
-      setIsRefreshingRecords(true);
-      const response = await requestRecords(P2P_PROGRAM_ID, false);
-      const rawRecords = unwrapWalletRecordResponse(response);
-      const nextRecords = isWalletRecordArray(rawRecords)
-        ? rawRecords.filter(
-            (record) =>
-              !record.spent &&
-              (!record.programName || record.programName === P2P_PROGRAM_ID) &&
-              Boolean(record.recordCiphertext) &&
-              record.recordName === "MatchedBet"
-          )
-        : [];
-
-      setRecords(nextRecords);
-      setBets({});
-      setRecordMessage(
-        nextRecords.length > 0 ? `Loaded ${nextRecords.length} records.` : "No records found."
-      );
-    } catch (error) {
-      console.error("P2P record load error:", error);
-      setRecords([]);
-      setBets({});
-      setRecordMessage("Unable to load records.");
-    } finally {
-      setIsRefreshingRecords(false);
-    }
+    setIsRefreshingRecords(true);
+    setRecords([]);
+    setBets({});
+    setRecordMessage(
+      "This contract version settles from invite details and offer state, not wallet records."
+    );
+    setIsRefreshingRecords(false);
   };
 
   const decryptRecord = async (record: WalletRecord) => {
@@ -408,6 +402,39 @@ export default function P2PPage() {
     void refreshMarkets();
   }, [connected, address]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadInviteOffer = async () => {
+      if (!invitePreview) {
+        setInviteOffer(null);
+        return;
+      }
+
+      try {
+        const text = await fetchMappingValue(
+          P2P_PROGRAM_ID,
+          "offers",
+          invitePreview.offerId
+        );
+        if (!cancelled) {
+          setInviteOffer(parseOfferCommitment(text, invitePreview.offerId));
+        }
+      } catch (error) {
+        console.error("Invite offer lookup error:", error);
+        if (!cancelled) {
+          setInviteOffer(null);
+        }
+      }
+    };
+
+    void loadInviteOffer();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [invitePreview]);
+
   const runTx = async (runner: () => Promise<void>) => {
     try {
       setIsProcessing(true);
@@ -425,13 +452,19 @@ export default function P2PPage() {
   };
 
   const handleCreateMarket = async () => {
+    if (!connected || !address) return;
+
     await runTx(async () => {
       setStatus("Creating market...");
       await executeTransaction({
         program: P2P_PROGRAM_ID,
         function: "create_market",
         fee: 100000,
-        inputs: [`${selectedMarket.market_id}field`, `${selectedMarket.closeHeight}u32`],
+        inputs: [
+          `${selectedMarket.market_id}field`,
+          address,
+          `${selectedMarket.closeHeight}u32`,
+        ],
       });
       setStatus("Market created.");
     });
@@ -466,8 +499,6 @@ export default function P2PPage() {
         version: 1,
         offerId,
         maker: address,
-        marketId: `${selectedMarket.market_id}field`,
-        stake: `${atomicStake}u64`,
         outcome: `${selectedOutcomeValue}u8`,
         salt,
       };
@@ -477,24 +508,37 @@ export default function P2PPage() {
         fee: 100000,
         inputs: [
           nextInvite.offerId,
-          nextInvite.marketId,
-          nextInvite.stake,
+          `${selectedMarket.market_id}field`,
+          `${atomicStake}u64`,
           nextInvite.outcome,
           nextInvite.salt,
         ],
         privateFee: false,
       });
       setLatestInvite(nextInvite);
+      setLatestInviteOffer({
+        offerId,
+        marketId: selectedMarket.market_id,
+        stake: atomicStake,
+        isOpen: true,
+      });
       setStatus("Invite created. Copy it and share privately.");
       setStakeStr("");
     });
   };
 
   const handleAcceptInvite = async () => {
-    if (!connected || !address || !invitePreview || !selectedState.exists || selectedState.isResolved) {
+    if (
+      !connected ||
+      !address ||
+      !invitePreview ||
+      !inviteOffer ||
+      !selectedState.exists ||
+      selectedState.isResolved
+    ) {
       return;
     }
-    const inviteStake = parseTypedInt(invitePreview.stake);
+    const inviteStake = inviteOffer.stake;
     if (inviteStake > balanceAtomic) {
       setStatus("Not enough USDCx balance.");
       return;
@@ -521,12 +565,11 @@ export default function P2PPage() {
         fee: 100000,
         inputs: [
           invitePreview.offerId,
+          `${inviteOffer.marketId}field`,
+          `${inviteOffer.stake}u64`,
           invitePreview.maker,
-          invitePreview.marketId,
-          invitePreview.stake,
           invitePreview.outcome,
           invitePreview.salt,
-          address,
         ],
         privateFee: false,
       });
@@ -536,16 +579,25 @@ export default function P2PPage() {
   };
 
   const handleCancelInvite = async (invite: InvitePayload) => {
+    if (!latestInviteOffer) return;
+
     await runTx(async () => {
       setStatus("Canceling invite...");
       await executeTransaction({
         program: P2P_PROGRAM_ID,
-        function: "cancel_offer_public",
+        function: "cancel_offer_private",
         fee: 100000,
-        inputs: [invite.offerId, invite.stake],
+        inputs: [
+          invite.offerId,
+          `${latestInviteOffer.marketId}field`,
+          `${latestInviteOffer.stake}u64`,
+          invite.outcome,
+          invite.salt,
+        ],
         privateFee: false,
       });
       setLatestInvite(null);
+      setLatestInviteOffer(null);
       setStatus("Invite canceled.");
     });
   };
@@ -886,7 +938,9 @@ export default function P2PPage() {
                       )}
                     </Button>
 
-                    {latestInvite && latestInvite.marketId === `${selectedMarket.market_id}field` && (
+                    {latestInvite &&
+                      latestInviteOffer &&
+                      latestInviteOffer.marketId === selectedMarket.market_id && (
                       <div className="space-y-3 rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-white/10 dark:bg-slate-950/25">
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div>
@@ -904,7 +958,7 @@ export default function P2PPage() {
                               Stake
                             </p>
                             <p className="mt-2 text-base font-semibold text-foreground">
-                              {formatUnits(parseTypedInt(latestInvite.stake), TOKEN_DECIMALS, 4)}
+                              {formatUnits(latestInviteOffer?.stake ?? 0n, TOKEN_DECIMALS, 4)}
                             </p>
                           </div>
                         </div>
@@ -947,14 +1001,14 @@ export default function P2PPage() {
                       disabled={isProcessing}
                     />
 
-                    {invitePreview && (
+                    {invitePreview && inviteOffer && (
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div className="rounded-[20px] border border-slate-200/70 bg-white p-3 dark:border-white/10 dark:bg-slate-950/25">
                           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                             Stake
                           </p>
                           <p className="mt-2 text-base font-semibold text-foreground">
-                            {formatUnits(parseTypedInt(invitePreview.stake), TOKEN_DECIMALS, 4)}
+                            {formatUnits(inviteOffer?.stake ?? 0n, TOKEN_DECIMALS, 4)}
                           </p>
                         </div>
                         <div className="rounded-[20px] border border-slate-200/70 bg-white p-3 dark:border-white/10 dark:bg-slate-950/25">
@@ -1025,7 +1079,9 @@ export default function P2PPage() {
                   Invite ready
                 </p>
                 <p className="mt-2 text-base font-semibold text-foreground">
-                  {latestInvite && latestInvite.marketId === `${selectedMarket.market_id}field`
+                  {latestInvite &&
+                  latestInviteOffer &&
+                  latestInviteOffer.marketId === selectedMarket.market_id
                     ? "Yes"
                     : "No"}
                 </p>
@@ -1180,3 +1236,7 @@ export default function P2PPage() {
     </div>
   );
 }
+
+
+
+

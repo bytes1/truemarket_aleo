@@ -1,12 +1,12 @@
 {
-  "program": "true_private_p2p.aleo",
+  "program": "true_private_p2p_v2.aleo",
   "version": "0.1.0",
   "description": "Private peer-to-peer betting for True Markets",
   "license": "MIT",
   "leo": "3.4.0",
   "dependencies": [
     {
-      "name": "p2p_usdcx_adapter.aleo",
+      "name": "p2p_usdcx_adapter_v2.aleo",
       "location": "network",
       "network": "testnet"
     }

@@ -1,5 +1,5 @@
 {
-  "program": "p2p_usdcx_adapter.aleo",
+  "program": "p2p_usdcx_adapter_v2.aleo",
   "version": "0.1.0",
   "description": "USDCx adapter for private peer-to-peer betting",
   "license": "MIT",
@@ -13,3 +13,4 @@
   ],
   "dev_dependencies": null
 }
+

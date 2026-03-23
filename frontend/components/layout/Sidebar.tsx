@@ -68,10 +68,10 @@ export default function Sidebar() {
         key={item.href}
         href={item.href}
         className={cn(
-          "group flex items-center gap-3 rounded-2xl px-3 py-3 transition-colors",
+          "group flex items-center gap-3 rounded-2xl px-3 py-3 transition-all duration-300",
           isActive
-            ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
-            : "text-foreground hover:bg-slate-100 dark:hover:bg-white/8"
+            ? "bg-primary/10 text-primary font-medium dark:bg-primary/15"
+            : "text-foreground hover:bg-white/5 dark:hover:bg-white/5"
         )}
         onClick={() => {
           if (isMobile) {
@@ -83,8 +83,8 @@ export default function Sidebar() {
           className={cn(
             "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border",
             isActive
-              ? "border-white/15 bg-white/10 dark:border-slate-300/20 dark:bg-slate-900/10"
-              : "border-slate-200/80 bg-white/80 dark:border-white/10 dark:bg-white/5"
+              ? "border-primary/30 bg-primary/20 text-primary shadow-[0_0_15px_rgba(var(--primary),0.2)]"
+              : "border-slate-800 bg-white/5 text-muted-foreground group-hover:text-foreground group-hover:border-slate-700"
           )}
         >
           <Icon size={18} />
@@ -123,13 +123,13 @@ export default function Sidebar() {
         <div className="surface-panel flex h-full flex-col overflow-hidden bg-sidebar/92">
           <div className="flex items-center justify-between border-b border-white/45 px-4 py-4 dark:border-white/10">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white dark:bg-white dark:text-slate-950">
-                TM
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-primary/40 bg-primary/10 text-sm font-black text-primary font-mono shadow-[0_0_15px_rgba(117,255,150,0.15)]">
+                ZK
               </div>
               {isOpen && (
                 <div className="min-w-0">
-                  <h1 className="font-display text-lg font-bold tracking-tight">
-                    True Markets
+                  <h1 className="font-display text-lg font-bold tracking-tight text-white">
+                    True <span className="text-primary font-light">Markets</span>
                   </h1>
                 </div>
               )}

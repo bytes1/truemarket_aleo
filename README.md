@@ -136,10 +136,10 @@ The current frontend uses these environment variables for standalone contract st
   - should be set to the deployed `launchpad_usdcx_adapter.aleo` address
 - `NEXT_PUBLIC_P2P_PROGRAM_ID`
   - optional
-  - defaults to `true_private_p2p.aleo`
+  - defaults to `true_private_p2p_v2.aleo`
 - `NEXT_PUBLIC_P2P_ADAPTER_ADDRESS`
   - required for the P2P approve flow
-  - should be set to the deployed `p2p_usdcx_adapter.aleo` address
+  - should be set to the deployed `p2p_usdcx_adapter_v2.aleo` address
 
 If you are using the AI chat route, make sure the model provider credentials required by your deployment are also configured in your runtime environment.
 
@@ -194,7 +194,7 @@ After deploying the standalone launchpad stack:
 After deploying the standalone P2P stack:
 
 1. deploy the adapter and P2P program
-2. call `p2p_usdcx_adapter.aleo/set_p2p` once with the deployed P2P address
+2. call `p2p_usdcx_adapter_v2.aleo/set_p2p` with the deployed P2P address
 3. make sure users approve the P2P adapter before creating or matching offers
 
 ## Notes About Program Names
@@ -226,3 +226,4 @@ Use [`contracts/README.md`](./contracts/README.md) for:
 - required one-time setup calls
 - token approval expectations
 - launchpad-specific notes
+

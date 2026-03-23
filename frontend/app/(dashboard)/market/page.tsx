@@ -103,9 +103,9 @@ export default function MarketPage() {
       <BetModeSwitch active="amm" />
 
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <div className="surface-card p-6 md:p-8">
-          <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-            AMM markets
+        <div className="surface-card p-6 md:p-8 relative overflow-hidden">
+          <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl text-slate-900 dark:text-white">
+            True Markets <span className="text-primary font-mono font-light opacity-80">AMM</span>
           </h2>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -147,7 +147,7 @@ export default function MarketPage() {
                   placeholder="Search markets"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-slate-200/80 bg-white px-4 pl-11 text-sm outline-none transition focus:border-sky-400 dark:border-white/10 dark:bg-white/5"
+                  className="h-10 w-full rounded border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1C1C1E] px-4 pl-10 text-sm outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/50 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm"
                 />
               </div>
             </label>
@@ -165,10 +165,10 @@ export default function MarketPage() {
                       type="button"
                       onClick={() => setSelectedCategory(category)}
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors",
+                        "inline-flex items-center gap-2 rounded border px-3 py-1.5 text-sm transition-all duration-200",
                         isActive
-                          ? "border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950"
-                          : "border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/8"
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10"
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -190,10 +190,10 @@ export default function MarketPage() {
                       type="button"
                       onClick={() => setSortBy(option.value)}
                       className={cn(
-                        "rounded-full border px-4 py-2 text-sm transition-colors",
+                        "rounded border px-4 py-1.5 text-sm transition-all duration-200",
                         isActive
-                          ? "border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950"
-                          : "border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/8"
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10"
                       )}
                     >
                       {option.label}
@@ -207,7 +207,7 @@ export default function MarketPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/8"
+                className="inline-flex items-center gap-2 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 px-4 py-1.5 text-sm dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-200 transition-all"
               >
                 <X className="h-4 w-4" />
                 Clear
@@ -237,7 +237,7 @@ export default function MarketPage() {
           <button
             type="button"
             onClick={resetFilters}
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white dark:bg-white dark:text-slate-950"
+            className="mt-5 inline-flex items-center gap-2 rounded-full border border-primary/50 bg-primary/10 px-5 py-3 text-sm font-semibold text-primary transition-all hover:bg-primary/20 hover:shadow-[0_0_20px_rgba(var(--primary),0.2)]"
           >
             Reset filters
           </button>

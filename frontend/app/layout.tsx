@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Providers } from "@/lib/providers";
-import { Manrope, Space_Grotesk } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 
-const manrope = Manrope({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-manrope",
+  variable: "--font-inter",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-jetbrains-mono",
 });
 
 export const metadata: Metadata = {
-  title: "True Markets | Forecast the Future",
-  description: "True Markets on Aleo.",
+  title: "True Markets | Enterprise ZK Darkpool",
+  description: "Automated Zero-Knowledge Internal Forecasting.",
 };
 
 export default function RootLayout({
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${manrope.variable} ${spaceGrotesk.variable} min-h-screen bg-background text-foreground antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} min-h-screen bg-background text-foreground antialiased font-sans`}
       >
         <ThemeProvider
           attribute="class"

@@ -153,12 +153,12 @@ Required setup after deployment:
 
 1. deploy the adapter
 2. deploy the P2P program
-3. call `set_p2p` once with the deployed P2P address
+3. call `set_p2p` with the deployed P2P address
 
 Important:
 
-- `set_p2p` is one-time only
-- if you configure the wrong P2P address, redeploy the adapter
+- the first caller to `set_p2p` becomes the adapter admin
+- after that, only that same admin can update the configured P2P address
 
 ## `true_private_p2p`
 
@@ -320,3 +320,4 @@ The current frontend:
 - decrypts records only on explicit user action
 
 If your deployed program names differ from local folder names, update the frontend constants or environment accordingly.
+

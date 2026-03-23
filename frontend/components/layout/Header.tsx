@@ -36,11 +36,16 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-30 w-full border-b border-white/45 bg-white/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/45">
       <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-8">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white dark:bg-white dark:text-slate-950">
-            TM
+        <div className="flex items-center gap-3 md:hidden">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/40 bg-primary/10 text-sm font-black text-primary font-mono shadow-[0_0_15px_rgba(117,255,150,0.15)]">
+            ZK
           </div>
           <h1 className="font-display text-2xl font-bold tracking-tight">
+            True <span className="text-primary font-light">Markets</span>
+          </h1>
+        </div>
+        <div className="hidden md:flex items-center gap-3">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-white/90">
             {title}
           </h1>
         </div>
@@ -54,7 +59,7 @@ export default function Header() {
               onClick={() =>
                 setTheme(resolvedTheme === "dark" ? "light" : "dark")
               }
-              className="h-11 w-11 rounded-2xl border border-white/55 bg-white/70 shadow-none hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+              className="h-11 w-11 rounded-2xl border border-white/55 bg-white/70 shadow-none hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-foreground"
             >
               {resolvedTheme === "dark" ? (
                 <Moon className="h-5 w-5" />
@@ -63,7 +68,6 @@ export default function Header() {
               )}
             </Button>
           )}
-
           <div className="rounded-full border border-white/55 bg-white/65 p-1 shadow-sm dark:border-white/10 dark:bg-white/5">
             <WalletButton />
           </div>
