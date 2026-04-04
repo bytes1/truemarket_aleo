@@ -1,6 +1,6 @@
-import usdcx_token_adapter.aleo;
+import test_usdcx_stablecoin.aleo;
 
-program ture_prediction_market1.aleo {
+program true_prediction_market_v3.aleo {
     struct Market {
         creator: address,
         closes_at: u32,
@@ -34,53 +34,92 @@ program ture_prediction_market1.aleo {
     }
 
     const NO_WINNER: u8 = 2u8;
+    const LAUNCHPAD_SLOT: u8 = 0u8;
 
     mapping markets: field => Market;
+    mapping configured_launchpad: u8 => address;
     mapping pools: field => Pool;
 
-    @noupgrade
-    async constructor() {}
+    fn set_launchpad(public launchpad: address) -> Final {
+        return final {
+            assert(!Mapping::contains(configured_launchpad, LAUNCHPAD_SLOT));
+            Mapping::set(configured_launchpad, LAUNCHPAD_SLOT, launchpad);
+        };
+    }
 
-    async transition create_market(
+    
+    // The constructor is configured to prevent upgrades.
+    @noupgrade
+     constructor() {}
+
+    fn create_market(
         public market_id: field,
         public closes_at: u32,
         public initial_liquidity: u64
-    ) -> Future {
+    ) -> Final {
         assert(initial_liquidity > 0u64);
 
-        let funding: Future = usdcx_token_adapter.aleo/pull_from_user(self.caller, initial_liquidity);
-        return finalize_create_market(funding, market_id, self.caller, closes_at, initial_liquidity);
+        let funding: Final = test_usdcx_stablecoin.aleo::transfer_from_public(
+            self.caller,
+            self.address,
+            initial_liquidity as u128
+        );
+        let creator: address = self.caller;
+        return final {
+            assert(!Mapping::contains(markets, market_id));
+            assert(closes_at > block.height);
+
+            funding.run();
+
+            let market: Market = Market {
+                creator: creator,
+                closes_at: closes_at,
+                is_resolved: false,
+                winning_outcome: NO_WINNER,
+                liquidity: initial_liquidity,
+            };
+            Mapping::set(markets, market_id, market);
+
+            let pool: Pool = Pool {
+                shares_a: initial_liquidity,
+                shares_b: initial_liquidity,
+            };
+            Mapping::set(pools, market_id, pool);
+        };
     }
 
-    async function finalize_create_market(
-        funding: Future,
-        market_id: field,
-        creator: address,
-        closes_at: u32,
-        initial_liquidity: u64
-    ) {
-        assert(!Mapping::contains(markets, market_id));
-        assert(closes_at > block.height);
+    fn create_market_from_launchpad(
+        public market_id: field,
+        public creator: address,
+        public closes_at: u32,
+        public initial_liquidity: u64
+    ) -> Final {
+        let caller: address = self.caller;
+        return final {
+            let launchpad: address = Mapping::get(configured_launchpad, LAUNCHPAD_SLOT);
+            assert(caller == launchpad);
+            assert(initial_liquidity > 0u64);
+            assert(!Mapping::contains(markets, market_id));
+            assert(closes_at > block.height);
 
-        funding.await();
+            let market: Market = Market {
+                creator: creator,
+                closes_at: closes_at,
+                is_resolved: false,
+                winning_outcome: NO_WINNER,
+                liquidity: initial_liquidity,
+            };
+            Mapping::set(markets, market_id, market);
 
-        let market: Market = Market {
-            creator: creator,
-            closes_at: closes_at,
-            is_resolved: false,
-            winning_outcome: NO_WINNER,
-            liquidity: initial_liquidity,
+            let pool: Pool = Pool {
+                shares_a: initial_liquidity,
+                shares_b: initial_liquidity,
+            };
+            Mapping::set(pools, market_id, pool);
         };
-        Mapping::set(markets, market_id, market);
-
-        let pool: Pool = Pool {
-            shares_a: initial_liquidity,
-            shares_b: initial_liquidity,
-        };
-        Mapping::set(pools, market_id, pool);
     }
 
-    transition quote_buy(
+    fn quote_buy(
         public pool_shares_a: u64,
         public pool_shares_b: u64,
         public outcome: u8,
@@ -89,7 +128,7 @@ program ture_prediction_market1.aleo {
         return compute_buy_quote(pool_shares_a, pool_shares_b, outcome, amount);
     }
 
-    transition quote_sell(
+    fn quote_sell(
         public pool_shares_a: u64,
         public pool_shares_b: u64,
         public outcome: u8,
@@ -99,8 +138,8 @@ program ture_prediction_market1.aleo {
     }
 
     // The caller supplies the current pool snapshot because private record outputs
-    // are created in transition scope, while public mappings are readable in finalize.
-    async transition buy_private(
+    // are created before the final block executes, while public mappings are readable in final logic.
+    fn buy_private(
         public market_id: field,
         public outcome: u8,
         public amount: u64,
@@ -108,7 +147,7 @@ program ture_prediction_market1.aleo {
         public expected_shares_a: u64,
         public expected_shares_b: u64,
         public min_shares_out: u64
-    ) -> (Position, Future) {
+    ) -> (Position, Final) {
         let quote: BuyQuote = compute_buy_quote(expected_shares_a, expected_shares_b, outcome, amount);
         assert(quote.shares_out >= min_shares_out);
 
@@ -119,69 +158,58 @@ program ture_prediction_market1.aleo {
             shares: quote.shares_out,
         };
 
-        let funding: Future = usdcx_token_adapter.aleo/pull_from_user(self.caller, amount);
+        let funding: Final = test_usdcx_stablecoin.aleo::transfer_from_public(
+            self.caller,
+            self.address,
+            amount as u128
+        );
+        
         return (
             position,
-            finalize_buy_private(
-                funding,
-                market_id,
-                outcome,
-                amount,
-                expected_shares_a,
-                expected_shares_b
-            )
+            final {
+                let market: Market = Mapping::get(markets, market_id);
+                assert(outcome <= 1u8);
+                assert(amount > 0u64);
+                assert(market.is_resolved == false);
+                assert(block.height < market.closes_at);
+
+                let pool: Pool = Mapping::get(pools, market_id);
+                assert(pool.shares_a == expected_shares_a);
+                assert(pool.shares_b == expected_shares_b);
+
+                let k: u128 = (pool.shares_a as u128) * (pool.shares_b as u128);
+
+                let new_b_if_0: u64 = pool.shares_b + amount;
+                let new_a_if_0: u64 = (k / (new_b_if_0 as u128)) as u64;
+                let shares_bought_if_0: u64 = pool.shares_a - new_a_if_0;
+
+                let new_a_if_1: u64 = pool.shares_a + amount;
+                let new_b_if_1: u64 = (k / (new_a_if_1 as u128)) as u64;
+                let shares_bought_if_1: u64 = pool.shares_b - new_b_if_1;
+
+                let next_shares_a: u64 = outcome == 0u8 ? new_a_if_0 : new_a_if_1;
+                let next_shares_b: u64 = outcome == 0u8 ? new_b_if_0 : new_b_if_1;
+                let shares_bought: u64 = outcome == 0u8 ? shares_bought_if_0 : shares_bought_if_1;
+                assert(shares_bought > 0u64);
+
+                funding.run();
+
+                let updated_pool: Pool = Pool {
+                    shares_a: next_shares_a,
+                    shares_b: next_shares_b,
+                };
+                Mapping::set(pools, market_id, updated_pool);
+            }
         );
     }
 
-    async function finalize_buy_private(
-        funding: Future,
-        market_id: field,
-        outcome: u8,
-        amount: u64,
-        expected_shares_a: u64,
-        expected_shares_b: u64
-    ) {
-        let market: Market = Mapping::get(markets, market_id);
-        assert(outcome <= 1u8);
-        assert(amount > 0u64);
-        assert(market.is_resolved == false);
-        assert(block.height < market.closes_at);
-
-        let pool: Pool = Mapping::get(pools, market_id);
-        assert(pool.shares_a == expected_shares_a);
-        assert(pool.shares_b == expected_shares_b);
-
-        let k: u128 = (pool.shares_a as u128) * (pool.shares_b as u128);
-
-        let new_b_if_0: u64 = pool.shares_b + amount;
-        let new_a_if_0: u64 = (k / (new_b_if_0 as u128)) as u64;
-        let shares_bought_if_0: u64 = pool.shares_a - new_a_if_0;
-
-        let new_a_if_1: u64 = pool.shares_a + amount;
-        let new_b_if_1: u64 = (k / (new_a_if_1 as u128)) as u64;
-        let shares_bought_if_1: u64 = pool.shares_b - new_b_if_1;
-
-        let next_shares_a: u64 = outcome == 0u8 ? new_a_if_0 : new_a_if_1;
-        let next_shares_b: u64 = outcome == 0u8 ? new_b_if_0 : new_b_if_1;
-        let shares_bought: u64 = outcome == 0u8 ? shares_bought_if_0 : shares_bought_if_1;
-        assert(shares_bought > 0u64);
-
-        funding.await();
-
-        let updated_pool: Pool = Pool {
-            shares_a: next_shares_a,
-            shares_b: next_shares_b,
-        };
-        Mapping::set(pools, market_id, updated_pool);
-    }
-
-    async transition sell_private(
+    fn sell_private(
         position: Position,
         public expected_shares_a: u64,
         public expected_shares_b: u64,
         public shares_to_sell: u64,
         public min_collateral_out: u64
-    ) -> (Position, Future) {
+    ) -> (Position, Final) {
         assert(position.owner == self.caller);
         assert(shares_to_sell > 0u64);
         assert(position.shares >= shares_to_sell);
@@ -201,89 +229,79 @@ program ture_prediction_market1.aleo {
             shares: position.shares - shares_to_sell,
         };
 
-        let payout: Future = usdcx_token_adapter.aleo/push_to_user(self.caller, quote.collateral_out);
+        let payout: Final = test_usdcx_stablecoin.aleo::transfer_public(
+            self.caller,
+            quote.collateral_out as u128
+        );
+        
+        let outcome: u8 = position.outcome;
+        let market_id: field = position.market_id;
+
         return (
             remainder,
-            finalize_sell_private(
-                payout,
-                position.market_id,
-                position.outcome,
-                shares_to_sell,
-                expected_shares_a,
-                expected_shares_b
-            )
+            final {
+                let market: Market = Mapping::get(markets, market_id);
+                assert(outcome <= 1u8);
+                assert(shares_to_sell > 0u64);
+                assert(market.is_resolved == false);
+                assert(block.height < market.closes_at);
+
+                let pool: Pool = Mapping::get(pools, market_id);
+                assert(pool.shares_a == expected_shares_a);
+                assert(pool.shares_b == expected_shares_b);
+
+                let k: u128 = (pool.shares_a as u128) * (pool.shares_b as u128);
+
+                let new_a_if_0: u64 = pool.shares_a + shares_to_sell;
+                let new_b_if_0: u64 = (k / (new_a_if_0 as u128)) as u64;
+                let collateral_out_if_0: u64 = pool.shares_b - new_b_if_0;
+
+                let new_b_if_1: u64 = pool.shares_b + shares_to_sell;
+                let new_a_if_1: u64 = (k / (new_b_if_1 as u128)) as u64;
+                let collateral_out_if_1: u64 = pool.shares_a - new_a_if_1;
+
+                let next_shares_a: u64 = outcome == 0u8 ? new_a_if_0 : new_a_if_1;
+                let next_shares_b: u64 = outcome == 0u8 ? new_b_if_0 : new_b_if_1;
+                let collateral_out: u64 = outcome == 0u8 ? collateral_out_if_0 : collateral_out_if_1;
+                assert(collateral_out > 0u64);
+
+                payout.run();
+
+                let updated_pool: Pool = Pool {
+                    shares_a: next_shares_a,
+                    shares_b: next_shares_b,
+                };
+                Mapping::set(pools, market_id, updated_pool);
+            }
         );
     }
 
-    async function finalize_sell_private(
-        payout: Future,
-        market_id: field,
-        outcome: u8,
-        shares_to_sell: u64,
-        expected_shares_a: u64,
-        expected_shares_b: u64
-    ) {
-        let market: Market = Mapping::get(markets, market_id);
-        assert(outcome <= 1u8);
-        assert(shares_to_sell > 0u64);
-        assert(market.is_resolved == false);
-        assert(block.height < market.closes_at);
-
-        let pool: Pool = Mapping::get(pools, market_id);
-        assert(pool.shares_a == expected_shares_a);
-        assert(pool.shares_b == expected_shares_b);
-
-        let k: u128 = (pool.shares_a as u128) * (pool.shares_b as u128);
-
-        let new_a_if_0: u64 = pool.shares_a + shares_to_sell;
-        let new_b_if_0: u64 = (k / (new_a_if_0 as u128)) as u64;
-        let collateral_out_if_0: u64 = pool.shares_b - new_b_if_0;
-
-        let new_b_if_1: u64 = pool.shares_b + shares_to_sell;
-        let new_a_if_1: u64 = (k / (new_b_if_1 as u128)) as u64;
-        let collateral_out_if_1: u64 = pool.shares_a - new_a_if_1;
-
-        let next_shares_a: u64 = outcome == 0u8 ? new_a_if_0 : new_a_if_1;
-        let next_shares_b: u64 = outcome == 0u8 ? new_b_if_0 : new_b_if_1;
-        let collateral_out: u64 = outcome == 0u8 ? collateral_out_if_0 : collateral_out_if_1;
-        assert(collateral_out > 0u64);
-
-        payout.await();
-
-        let updated_pool: Pool = Pool {
-            shares_a: next_shares_a,
-            shares_b: next_shares_b,
-        };
-        Mapping::set(pools, market_id, updated_pool);
-    }
-
-    async transition resolve_market(
+    fn resolve_market(
         public market_id: field,
         public winning_outcome: u8
-    ) -> Future {
-        return finalize_resolve_market(market_id, self.caller, winning_outcome);
-    }
+    ) -> Final {
+        let caller: address = self.caller;
+        return final {
+            let market: Market = Mapping::get(markets, market_id);
+            assert(market.creator == caller);
+            assert(market.is_resolved == false);
+            assert(winning_outcome <= 1u8);
 
-    async function finalize_resolve_market(market_id: field, caller: address, winning_outcome: u8) {
-        let market: Market = Mapping::get(markets, market_id);
-        assert(market.creator == caller);
-        assert(market.is_resolved == false);
-        assert(winning_outcome <= 1u8);
-
-        let updated_market: Market = Market {
-            creator: market.creator,
-            closes_at: market.closes_at,
-            is_resolved: true,
-            winning_outcome: winning_outcome,
-            liquidity: market.liquidity,
+            let updated_market: Market = Market {
+                creator: market.creator,
+                closes_at: market.closes_at,
+                is_resolved: true,
+                winning_outcome: winning_outcome,
+                liquidity: market.liquidity,
+            };
+            Mapping::set(markets, market_id, updated_market);
         };
-        Mapping::set(markets, market_id, updated_market);
     }
 
-    async transition claim_private(
+    fn claim_private(
         position: Position,
         public shares_to_claim: u64
-    ) -> (Position, Future) {
+    ) -> (Position, Final) {
         assert(position.owner == self.caller);
         assert(shares_to_claim > 0u64);
         assert(position.shares >= shares_to_claim);
@@ -295,96 +313,91 @@ program ture_prediction_market1.aleo {
             shares: position.shares - shares_to_claim,
         };
 
-        let payout: Future = usdcx_token_adapter.aleo/push_to_user(self.caller, shares_to_claim);
+        let payout: Final = test_usdcx_stablecoin.aleo::transfer_public(
+            self.caller,
+            shares_to_claim as u128
+        );
+        let outcome: u8 = position.outcome;
+        let market_id: field = position.market_id;
+        
         return (
             remainder,
-            finalize_claim_private(
-                payout,
-                position.market_id,
-                position.outcome,
-                shares_to_claim
-            )
+            final {
+                let market: Market = Mapping::get(markets, market_id);
+                assert(shares_to_claim > 0u64);
+                assert(market.is_resolved == true);
+                assert(market.winning_outcome == outcome);
+
+                let pool: Pool = Mapping::get(pools, market_id);
+                let updated_pool: Pool = Pool {
+                    shares_a: outcome == 0u8 ? pool.shares_a - shares_to_claim : pool.shares_a,
+                    shares_b: outcome == 1u8 ? pool.shares_b - shares_to_claim : pool.shares_b,
+                };
+                Mapping::set(pools, market_id, updated_pool);
+
+                payout.run();
+            }
         );
     }
+}
 
-    async function finalize_claim_private(
-        payout: Future,
-        market_id: field,
-        outcome: u8,
-        shares_to_claim: u64
-    ) {
-        let market: Market = Mapping::get(markets, market_id);
-        assert(shares_to_claim > 0u64);
-        assert(market.is_resolved == true);
-        assert(market.winning_outcome == outcome);
+// Helper functions placed outside program
+fn compute_buy_quote(
+    pool_shares_a: u64,
+    pool_shares_b: u64,
+    outcome: u8,
+    amount: u64
+) -> true_prediction_market_v3.aleo::BuyQuote {
+    assert(pool_shares_a > 0u64);
+    assert(pool_shares_b > 0u64);
+    assert(outcome <= 1u8);
+    assert(amount > 0u64);
 
-        let pool: Pool = Mapping::get(pools, market_id);
-        let updated_pool: Pool = Pool {
-            shares_a: outcome == 0u8 ? pool.shares_a - shares_to_claim : pool.shares_a,
-            shares_b: outcome == 1u8 ? pool.shares_b - shares_to_claim : pool.shares_b,
-        };
-        Mapping::set(pools, market_id, updated_pool);
+    let k: u128 = (pool_shares_a as u128) * (pool_shares_b as u128);
 
-        payout.await();
-    }
+    let new_b_if_0: u64 = pool_shares_b + amount;
+    let new_a_if_0: u64 = (k / (new_b_if_0 as u128)) as u64;
+    let shares_bought_if_0: u64 = pool_shares_a - new_a_if_0;
 
-    function compute_buy_quote(
-        pool_shares_a: u64,
-        pool_shares_b: u64,
-        outcome: u8,
-        amount: u64
-    ) -> BuyQuote {
-        assert(pool_shares_a > 0u64);
-        assert(pool_shares_b > 0u64);
-        assert(outcome <= 1u8);
-        assert(amount > 0u64);
+    let new_a_if_1: u64 = pool_shares_a + amount;
+    let new_b_if_1: u64 = (k / (new_a_if_1 as u128)) as u64;
+    let shares_bought_if_1: u64 = pool_shares_b - new_b_if_1;
 
-        let k: u128 = (pool_shares_a as u128) * (pool_shares_b as u128);
+    let quote: true_prediction_market_v3.aleo::BuyQuote = true_prediction_market_v3.aleo::BuyQuote {
+        next_shares_a: outcome == 0u8 ? new_a_if_0 : new_a_if_1,
+        next_shares_b: outcome == 0u8 ? new_b_if_0 : new_b_if_1,
+        shares_out: outcome == 0u8 ? shares_bought_if_0 : shares_bought_if_1,
+    };
+    assert(quote.shares_out > 0u64);
+    return quote;
+}
 
-        let new_b_if_0: u64 = pool_shares_b + amount;
-        let new_a_if_0: u64 = (k / (new_b_if_0 as u128)) as u64;
-        let shares_bought_if_0: u64 = pool_shares_a - new_a_if_0;
+fn compute_sell_quote(
+    pool_shares_a: u64,
+    pool_shares_b: u64,
+    outcome: u8,
+    shares_to_sell: u64
+) -> true_prediction_market_v3.aleo::SellQuote {
+    assert(pool_shares_a > 0u64);
+    assert(pool_shares_b > 0u64);
+    assert(outcome <= 1u8);
+    assert(shares_to_sell > 0u64);
 
-        let new_a_if_1: u64 = pool_shares_a + amount;
-        let new_b_if_1: u64 = (k / (new_a_if_1 as u128)) as u64;
-        let shares_bought_if_1: u64 = pool_shares_b - new_b_if_1;
+    let k: u128 = (pool_shares_a as u128) * (pool_shares_b as u128);
 
-        let quote: BuyQuote = BuyQuote {
-            next_shares_a: outcome == 0u8 ? new_a_if_0 : new_a_if_1,
-            next_shares_b: outcome == 0u8 ? new_b_if_0 : new_b_if_1,
-            shares_out: outcome == 0u8 ? shares_bought_if_0 : shares_bought_if_1,
-        };
-        assert(quote.shares_out > 0u64);
-        return quote;
-    }
+    let new_a_if_0: u64 = pool_shares_a + shares_to_sell;
+    let new_b_if_0: u64 = (k / (new_a_if_0 as u128)) as u64;
+    let collateral_out_if_0: u64 = pool_shares_b - new_b_if_0;
 
-    function compute_sell_quote(
-        pool_shares_a: u64,
-        pool_shares_b: u64,
-        outcome: u8,
-        shares_to_sell: u64
-    ) -> SellQuote {
-        assert(pool_shares_a > 0u64);
-        assert(pool_shares_b > 0u64);
-        assert(outcome <= 1u8);
-        assert(shares_to_sell > 0u64);
+    let new_b_if_1: u64 = pool_shares_b + shares_to_sell;
+    let new_a_if_1: u64 = (k / (new_b_if_1 as u128)) as u64;
+    let collateral_out_if_1: u64 = pool_shares_a - new_a_if_1;
 
-        let k: u128 = (pool_shares_a as u128) * (pool_shares_b as u128);
-
-        let new_a_if_0: u64 = pool_shares_a + shares_to_sell;
-        let new_b_if_0: u64 = (k / (new_a_if_0 as u128)) as u64;
-        let collateral_out_if_0: u64 = pool_shares_b - new_b_if_0;
-
-        let new_b_if_1: u64 = pool_shares_b + shares_to_sell;
-        let new_a_if_1: u64 = (k / (new_b_if_1 as u128)) as u64;
-        let collateral_out_if_1: u64 = pool_shares_a - new_a_if_1;
-
-        let quote: SellQuote = SellQuote {
-            next_shares_a: outcome == 0u8 ? new_a_if_0 : new_a_if_1,
-            next_shares_b: outcome == 0u8 ? new_b_if_0 : new_b_if_1,
-            collateral_out: outcome == 0u8 ? collateral_out_if_0 : collateral_out_if_1,
-        };
-        assert(quote.collateral_out > 0u64);
-        return quote;
-    }
+    let quote: true_prediction_market_v3.aleo::SellQuote = true_prediction_market_v3.aleo::SellQuote {
+        next_shares_a: outcome == 0u8 ? new_a_if_0 : new_a_if_1,
+        next_shares_b: outcome == 0u8 ? new_b_if_0 : new_b_if_1,
+        collateral_out: outcome == 0u8 ? collateral_out_if_0 : collateral_out_if_1,
+    };
+    assert(quote.collateral_out > 0u64);
+    return quote;
 }

@@ -17,7 +17,11 @@ export interface Market {
   image: string;
   isFlashMarket?: boolean;
   isClosed?: boolean;
-  cardStyle?: "image" | "text"; // <-- NEW: To control card style
+  cardStyle?: "image" | "text";
+  creatorAddress?: string;
+  closeHeight?: number;
+  sourceLink?: string;
+  isCustom?: boolean;
 }
 
 export const data: Market[] = [

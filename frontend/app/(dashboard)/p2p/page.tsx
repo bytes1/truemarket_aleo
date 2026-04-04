@@ -10,6 +10,7 @@ import {
   Mail,
   RefreshCw,
   Share2,
+  ShieldAlert,
   Wallet,
 } from "lucide-react";
 import { BetModeSwitch } from "@/components/BetModeSwitch";
@@ -20,11 +21,14 @@ import { cn } from "@/lib/utils";
 
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
 const P2P_PROGRAM_ID =
-  process.env.NEXT_PUBLIC_P2P_PROGRAM_ID ?? "true_private_p2p_v2.aleo";
-const P2P_ADAPTER_ADDRESS =
-  process.env.NEXT_PUBLIC_P2P_ADAPTER_ADDRESS ?? "p2p_usdcx_adapter_v2.aleo";
+  process.env.NEXT_PUBLIC_P2P_PROGRAM_ID ?? "true_private_p2p_v3.aleo";
+const P2P_SPENDER_ADDRESS =
+  process.env.NEXT_PUBLIC_P2P_SPENDER_ADDRESS ??
+  process.env.NEXT_PUBLIC_P2P_ADAPTER_ADDRESS ??
+  P2P_PROGRAM_ID;
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";
 const TOKEN_DECIMALS = 6;
+const LATEST_INVITE_STORAGE_KEY = "true-markets.latest-p2p-invite";
 
 type ActionMode = "create" | "accept";
 type Outcome = "yes" | "no";
@@ -302,7 +306,7 @@ export default function P2PPage() {
   const [bets, setBets] = useState<Record<string, BetView>>({});
   const [status, setStatus] = useState("");
   const [recordMessage, setRecordMessage] = useState(
-    "This contract version settles from invite details and offer state, not wallet records."
+    "Open invites still use a signed payload today. Settlement state is on-chain, but invite transport is still off-chain until a taker-addressed record flow is added."
   );
   const [decryptingKey, setDecryptingKey] = useState<string | null>(null);
   const [isRefreshingMarkets, setIsRefreshingMarkets] = useState(false);
@@ -312,6 +316,35 @@ export default function P2PPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const raw = window.localStorage.getItem(LATEST_INVITE_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = parseInvitePayload(raw);
+      if (parsed) {
+        setLatestInvite(parsed);
+      }
+    } catch {
+      // Ignore invalid local invite cache.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (!latestInvite) {
+      window.localStorage.removeItem(LATEST_INVITE_STORAGE_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(
+      LATEST_INVITE_STORAGE_KEY,
+      JSON.stringify(latestInvite)
+    );
+  }, [latestInvite]);
 
   const selectedMarket =
     p2pMarkets.find((market) => market.market_id === selectedMarketId) ?? p2pMarkets[0];
@@ -398,7 +431,7 @@ export default function P2PPage() {
     setRecords([]);
     setBets({});
     setRecordMessage(
-      "This contract version settles from invite details and offer state, not wallet records."
+      "Open invites still use a signed payload today. Settlement state is on-chain, but invite transport is still off-chain until a taker-addressed record flow is added."
     );
     setIsRefreshingRecords(false);
   };
@@ -516,18 +549,18 @@ export default function P2PPage() {
       setStatus("Not enough USDCx balance.");
       return;
     }
-    if (P2P_ADAPTER_ADDRESS === "") {
-      setStatus("P2P adapter address is missing.");
+    if (P2P_SPENDER_ADDRESS === "") {
+      setStatus("P2P spender address is missing.");
       return;
     }
 
     await runTx(async () => {
-      setStatus("Approving USDCx...");
+      setStatus("Approving USDCx spending...");
       await executeTransaction({
         program: TOKEN_PROGRAM_ID,
         function: "approve_public",
         fee: 100000,
-        inputs: [P2P_ADAPTER_ADDRESS, `${atomicStake}u128`],
+        inputs: [P2P_SPENDER_ADDRESS, `${atomicStake}u128`],
         privateFee: false,
       });
 
@@ -582,18 +615,18 @@ export default function P2PPage() {
       setStatus("Not enough USDCx balance.");
       return;
     }
-    if (P2P_ADAPTER_ADDRESS === "") {
-      setStatus("P2P adapter address is missing.");
+    if (P2P_SPENDER_ADDRESS === "") {
+      setStatus("P2P spender address is missing.");
       return;
     }
 
     await runTx(async () => {
-      setStatus("Approving USDCx...");
+      setStatus("Approving USDCx spending...");
       await executeTransaction({
         program: TOKEN_PROGRAM_ID,
         function: "approve_public",
         fee: 100000,
-        inputs: [P2P_ADAPTER_ADDRESS, `${inviteStake}u128`],
+        inputs: [P2P_SPENDER_ADDRESS, `${inviteStake}u128`],
         privateFee: false,
       });
 
@@ -726,6 +759,11 @@ export default function P2PPage() {
           <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
             P2P bets
           </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+            Head-to-head markets with on-chain escrow and private invite terms. Offer matching is
+            still bootstrapped with an off-chain invite payload today, while stake movements remain
+            public on-chain.
+          </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="surface-muted px-4 py-4">
@@ -775,11 +813,25 @@ export default function P2PPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Privacy
               </p>
-              <p className="mt-2 text-lg font-semibold">Private invite</p>
+              <p className="mt-2 text-lg font-semibold">Selective privacy</p>
             </div>
           </div>
         </div>
       </section>
+
+      <div className="rounded-[24px] border border-amber-300/25 bg-amber-300/10 p-4 text-sm text-amber-950 dark:text-amber-100">
+        <div className="flex gap-3">
+          <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
+          <div>
+            <p className="font-semibold">Privacy boundary</p>
+            <p className="mt-1 leading-6 text-amber-900/80 dark:text-amber-100/80">
+              The maker side, chosen outcome, and invite salt are carried in a private payload, but
+              approval and escrow transfers are still publicly visible. A fully record-routed open
+              invite flow needs a larger protocol redesign than this pass.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_440px]">
         <div className="space-y-4">

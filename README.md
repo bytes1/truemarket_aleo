@@ -30,14 +30,12 @@ The contracts live in [`contracts/`](./contracts) and are split into three indep
 - market stack
   - `true_market_token`
   - `test_usdcx_stablecoin`
-  - `usdcx_token_adapter`
-  - `ture_prediction_market1`
+  - `true_prediction_market_v3`
 - standalone launchpad stack
   - `launchpad_usdcx_adapter`
   - `true_market_launchpad`
 - standalone P2P stack
-  - `p2p_usdcx_adapter`
-  - `true_private_p2p`
+  - `true_private_p2p_v3`
 
 The launchpad contracts are separate and do not modify the original market contracts.
 
@@ -166,10 +164,11 @@ The current frontend uses these environment variables for standalone contract st
   - should be set to the deployed `launchpad_usdcx_adapter.aleo` address
 - `NEXT_PUBLIC_P2P_PROGRAM_ID`
   - optional
-  - defaults to `true_private_p2p_v2.aleo`
-- `NEXT_PUBLIC_P2P_ADAPTER_ADDRESS`
-  - required for the P2P approve flow
-  - should be set to the deployed `p2p_usdcx_adapter_v2.aleo` address
+  - defaults to `true_private_p2p_v3.aleo`
+- `NEXT_PUBLIC_P2P_SPENDER_ADDRESS`
+  - optional
+  - defaults to the P2P program address
+  - only override if your deployment still routes spending through a separate adapter
 
 If you are using the AI chat route, make sure the model provider credentials required by your deployment are also configured in your runtime environment.
 
@@ -192,11 +191,9 @@ For full contract details, read [`contracts/README.md`](./contracts/README.md).
 High level summary:
 
 - `true_market_token`: base public token logic
-- `test_usdcx_stablecoin`: local ABI-facing token dependency used by adapters
-- `usdcx_token_adapter`: adapter that only allows the configured market program to move USDCx
-- `ture_prediction_market1`: AMM market logic for creating, buying, selling, resolving, and claiming
-- `p2p_usdcx_adapter`: adapter that only allows the configured P2P program to move USDCx
-- `true_private_p2p`: private offer, matching, settlement, and payout logic for head-to-head bets
+- `test_usdcx_stablecoin`: public USDCx-like token used by the contracts
+- `true_prediction_market_v3`: AMM market logic for creating, buying, selling, resolving, and claiming
+- `true_private_p2p_v3`: private offer, matching, settlement, and payout logic for head-to-head bets
 - `launchpad_usdcx_adapter`: adapter that only allows the configured launchpad program to move USDCx
 - `true_market_launchpad`: standalone round creation, liquidity contribution, withdrawal, and activation
 
@@ -206,9 +203,9 @@ High level summary:
 
 After deploying the original market stack:
 
-1. deploy the adapter and market program
-2. call `usdcx_token_adapter.aleo/set_market` once with the deployed market address
-3. make sure users approve the adapter before market funding or trading flows
+1. deploy `test_usdcx_stablecoin`
+2. deploy `true_prediction_market_v3`
+3. make sure users approve the market program address before market funding or trading flows
 
 ### Launchpad Stack
 
@@ -223,9 +220,9 @@ After deploying the standalone launchpad stack:
 
 After deploying the standalone P2P stack:
 
-1. deploy the adapter and P2P program
-2. call `p2p_usdcx_adapter_v2.aleo/set_p2p` with the deployed P2P address
-3. make sure users approve the P2P adapter before creating or matching offers
+1. deploy `test_usdcx_stablecoin`
+2. deploy `true_private_p2p_v3`
+3. make sure users approve the P2P program address before creating or matching offers
 
 ## Notes About Program Names
 

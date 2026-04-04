@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Local ABI stub for the USDCX stablecoin dependency",
   "license": "MIT",
-  "leo": "3.4.0",
+  "leo": "4.0.0",
   "dependencies": [
     {
       "name": "true_market_token.aleo",

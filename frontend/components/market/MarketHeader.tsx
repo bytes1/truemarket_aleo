@@ -54,6 +54,11 @@ export const MarketHeader = ({ market, details }: MarketHeaderProps) => {
           <span className="rounded-full border border-slate-200/80 bg-white px-3 py-1 text-xs font-semibold dark:border-white/10 dark:bg-white/5">
             {market.marketType}
           </span>
+          {market.isCustom && (
+            <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-700 dark:text-sky-300">
+              Creator market
+            </span>
+          )}
           {market.isFlashMarket && (
             <span className="rounded-full border border-slate-200/80 bg-white px-3 py-1 text-xs font-semibold dark:border-white/10 dark:bg-white/5">
               Flash
@@ -72,6 +77,11 @@ export const MarketHeader = ({ market, details }: MarketHeaderProps) => {
                 <CalendarDays className="h-4 w-4" />
                 {market.deadline}
               </div>
+              {market.creatorAddress && (
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-4 py-2 text-sm dark:border-white/10 dark:bg-white/5">
+                  Creator {market.creatorAddress.slice(0, 10)}...
+                </div>
+              )}
             </div>
 
             {categories.length > 0 && (

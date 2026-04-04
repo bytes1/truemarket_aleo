@@ -37,13 +37,13 @@ Path: [`test_usdcx_stablecoin/src/main.leo`](./test_usdcx_stablecoin/src/main.le
 
 Purpose:
 
-- acts as the USDCx-facing dependency expected by the adapters
-- used by both the market adapter and launchpad adapter
+- acts as the USDCx-facing dependency for market, P2P, and launchpad flows
+- used directly by the market and P2P programs, and by the launchpad adapter stack
 
 Notes:
 
 - this program is referenced as the token program in the frontend
-- adapters call its public transfer and allowance-style transitions
+- contracts use its public transfer and allowance-style transitions
 
 ## `usdcx_token_adapter`
 
@@ -53,6 +53,7 @@ Purpose:
 
 - isolates market funding and payout token logic
 - only the configured market program can pull from or push to users through this adapter
+- retained here as a legacy adapter path; the current market contract no longer depends on it directly
 
 Main transitions:
 
@@ -71,7 +72,7 @@ Important:
 - `set_market` is one-time only
 - if you configure the wrong market address, redeploy the adapter
 
-## `ture_prediction_market1`
+## `true_prediction_market_v3`
 
 Path: [`ture_prediction_market1/src/main.leo`](./ture_prediction_market1/src/main.leo)
 
@@ -103,10 +104,10 @@ Main transitions:
 
 Operational notes:
 
-- `create_market` pulls the initial liquidity from the creator through `usdcx_token_adapter`
+- `create_market` pulls the initial liquidity from the creator directly through `test_usdcx_stablecoin`
 - `buy_private` creates a private `Position` record
 - `sell_private` consumes a `Position` record and returns a remainder record
-- users must approve the token adapter before funding or trading
+- users must approve the market program address before funding or trading
 
 ## `launchpad_usdcx_adapter`
 
@@ -160,7 +161,7 @@ Important:
 - the first caller to `set_p2p` becomes the adapter admin
 - after that, only that same admin can update the configured P2P address
 
-## `true_private_p2p`
+## `true_private_p2p_v3`
 
 Path: [`true_private_p2p/src/main.leo`](./true_private_p2p/src/main.leo)
 
@@ -194,7 +195,7 @@ Operational notes:
 - matching an offer consumes the offer and returns two private `MatchedBet` records
 - the offer record must be shared off-chain with the counterparty
 - creator resolves or cancels after market close
-- users must approve the P2P adapter before creating or matching offers
+- users must approve the P2P program address before creating or matching offers
 
 ## `true_market_launchpad`
 
@@ -235,9 +236,8 @@ Recommended order:
 
 1. deploy `true_market_token` if needed for your environment
 2. deploy or point to `test_usdcx_stablecoin`
-3. deploy `usdcx_token_adapter`
-4. deploy `ture_prediction_market1`
-5. call `usdcx_token_adapter/set_market(market_address)`
+3. deploy `true_prediction_market_v3`
+4. approve `true_prediction_market_v3.aleo` as spender before market funding or trading
 
 ### Standalone launchpad stack
 
@@ -253,19 +253,18 @@ Recommended order:
 Recommended order:
 
 1. deploy or point to `test_usdcx_stablecoin`
-2. deploy `p2p_usdcx_adapter`
-3. deploy `true_private_p2p`
-4. call `p2p_usdcx_adapter/set_p2p(p2p_address)`
+2. deploy `true_private_p2p_v3`
+3. approve `true_private_p2p_v3.aleo` as spender before creating or matching offers
 
 ## Required User Approvals
 
 Before token movement can happen:
 
-- market users must call `approve_public(adapter_address, amount)` for `usdcx_token_adapter`
-- P2P users must call `approve_public(adapter_address, amount)` for `p2p_usdcx_adapter`
+- market users must call `approve_public(program_address, amount)` for `true_prediction_market_v3`
+- P2P users must call `approve_public(program_address, amount)` for `true_private_p2p_v3`
 - launchpad users must call `approve_public(adapter_address, amount)` for `launchpad_usdcx_adapter`
 
-Without approval, `pull_from_user` will fail because the adapter uses `transfer_from_public`.
+Without approval, the market or P2P funding transition will fail when it calls `transfer_from_public`.
 
 ## Launchpad Post-Deploy Checklist
 
@@ -296,12 +295,12 @@ Examples:
 
 Market trading produces:
 
-- `Position` records from `ture_prediction_market1`
+- `Position` records from `true_prediction_market_v3`
 
 P2P betting produces:
 
-- `BetOffer` records from `true_private_p2p`
-- `MatchedBet` records from `true_private_p2p`
+- `BetOffer` records from `true_private_p2p_v3`
+- `MatchedBet` records from `true_private_p2p_v3`
 
 Launchpad contributions produce:
 

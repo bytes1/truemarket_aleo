@@ -7,6 +7,7 @@ import {
   Eye,
   Loader2,
   RefreshCw,
+  ShieldAlert,
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,10 +16,13 @@ import { TimelineCard } from "./TimelineCard";
 import { type Market } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
-const MARKET_PROGRAM_ID = "ture_prediction_market2.aleo";
+const MARKET_PROGRAM_ID =
+  process.env.NEXT_PUBLIC_MARKET_PROGRAM_ID ?? "true_prediction_market_v3.aleo";
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
-const ADAPTER_PROGRAM_ADDRESS =
-  "aleo1dueh8x2nkuyywlzun8mhkslspgh7jxt2qqpvsvz9hwmyr5fwdcpqeaj4ur";
+const MARKET_SPENDER_ADDRESS =
+  process.env.NEXT_PUBLIC_MARKET_SPENDER_ADDRESS ??
+  process.env.NEXT_PUBLIC_MARKET_ADAPTER_ADDRESS ??
+  MARKET_PROGRAM_ID;
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";
 const TOKEN_DECIMALS = 6;
 const SLIPPAGE_BPS = 100n;
@@ -871,11 +875,11 @@ export const TradeCard = ({ market }: { market: Market }) => {
         const marketIdField = `${market.market_id}field`;
         const outcomeU8 = outcome === "yes" ? "0u8" : "1u8";
 
-        setTxStatus("Approving USDCx allowance...");
+        setTxStatus("Approving USDCx spending...");
         await executeTransaction({
           program: TOKEN_PROGRAM_ID,
           function: "approve_public",
-          inputs: [ADAPTER_PROGRAM_ADDRESS, `${tradeDetails.atomicAmount}u128`],
+          inputs: [MARKET_SPENDER_ADDRESS, `${tradeDetails.atomicAmount}u128`],
           fee: 100000,
           privateFee: false,
         });
@@ -948,6 +952,19 @@ export const TradeCard = ({ market }: { market: Market }) => {
       </div>
 
       <div className="space-y-5 p-5">
+        <div className="rounded-[24px] border border-amber-300/25 bg-amber-300/10 p-4 text-sm text-amber-950 dark:text-amber-100">
+          <div className="flex items-start gap-3">
+            <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-semibold">Privacy boundary</p>
+              <p className="mt-1 leading-6 text-amber-900/80 dark:text-amber-100/80">
+                Your position record is private, but the approval and token transfer used to
+                fund or redeem it are still public on-chain.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-lg">
           <button
             type="button"
