@@ -27,8 +27,8 @@ export interface Market {
 export const data: Market[] = [
 
   {
-    market_id: 1,
-    market_title: "Did True Markets win a prize in Aleo Buildathon Wave 4?",
+    market_id: 0,
+    market_title: "Did True Markets win a prize in Aleo Buildathon Wave 5?",
     category: "Crypto",
     outcome_a: "YES",
     outcome_b: "NO",

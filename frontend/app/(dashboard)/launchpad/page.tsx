@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
 const LAUNCHPAD_PROGRAM_ID =
-  process.env.NEXT_PUBLIC_LAUNCHPAD_PROGRAM_ID ?? "true_market_launchpad.aleo";
+  process.env.NEXT_PUBLIC_LAUNCHPAD_PROGRAM_ID ?? "true_market_launchpad_v2.aleo";
 const LAUNCHPAD_ADAPTER_ADDRESS =
   process.env.NEXT_PUBLIC_LAUNCHPAD_ADAPTER_ADDRESS ?? "launchpad_usdcx_adapter.aleo";
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";

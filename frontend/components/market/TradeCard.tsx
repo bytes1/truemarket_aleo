@@ -19,10 +19,7 @@ import { cn } from "@/lib/utils";
 const MARKET_PROGRAM_ID =
   process.env.NEXT_PUBLIC_MARKET_PROGRAM_ID ?? "true_prediction_market_v3.aleo";
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
-const MARKET_SPENDER_ADDRESS =
-  process.env.NEXT_PUBLIC_MARKET_SPENDER_ADDRESS ??
-  process.env.NEXT_PUBLIC_MARKET_ADAPTER_ADDRESS ??
-  MARKET_PROGRAM_ID;
+const MARKET_SPENDER_ADDRESS = "aleo107rx38hdjmjyanhhurftl9tapvketn4vv5v5l3rj7qjrplajhcqs6xct67";
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";
 const TOKEN_DECIMALS = 6;
 const SLIPPAGE_BPS = 100n;
@@ -127,9 +124,8 @@ function formatUnits(value: bigint, decimals = TOKEN_DECIMALS, precision = 4) {
     .slice(0, precision)
     .replace(/0+$/, "");
 
-  return `${negative ? "-" : ""}${whole.toString()}${
-    fractionStr ? `.${fractionStr}` : ""
-  }`;
+  return `${negative ? "-" : ""}${whole.toString()}${fractionStr ? `.${fractionStr}` : ""
+    }`;
 }
 
 function formatDisplayUsd(rawAtomic: bigint) {
@@ -551,8 +547,7 @@ export const TradeCard = ({ market }: { market: Market }) => {
 
       if (filtered.length > 0) {
         setPortfolioMessage(
-          `Loaded ${filtered.length} encrypted private record${
-            filtered.length === 1 ? "" : "s"
+          `Loaded ${filtered.length} encrypted private record${filtered.length === 1 ? "" : "s"
           }${requestRecordPlaintexts ? ` and ${filteredPlaintext.length} sellable plaintext record${filteredPlaintext.length === 1 ? "" : "s"}` : ""}.`
         );
       } else {
@@ -721,8 +716,8 @@ export const TradeCard = ({ market }: { market: Market }) => {
 
     const keyMatch = matchingDecryptedKey
       ? senderPlaintextRecords.find(
-          (record) => getPlaintextRecordKey(record) === matchingDecryptedKey
-        ) ?? null
+        (record) => getPlaintextRecordKey(record) === matchingDecryptedKey
+      ) ?? null
       : null;
 
     if (keyMatch) {
@@ -1005,8 +1000,8 @@ export const TradeCard = ({ market }: { market: Market }) => {
             )}
           >
             <span className={cn(
-                "text-sm font-semibold",
-                outcome === "yes" ? "text-blue-600 dark:text-[#0041FF]" : "text-slate-600 dark:text-slate-400"
+              "text-sm font-semibold",
+              outcome === "yes" ? "text-blue-600 dark:text-[#0041FF]" : "text-slate-600 dark:text-slate-400"
             )}>
               {market.outcome_a}
             </span>
@@ -1026,8 +1021,8 @@ export const TradeCard = ({ market }: { market: Market }) => {
             )}
           >
             <span className={cn(
-                "text-sm font-semibold",
-                outcome === "no" ? "text-red-500 dark:text-[#FF0054]" : "text-slate-600 dark:text-slate-400"
+              "text-sm font-semibold",
+              outcome === "no" ? "text-red-500 dark:text-[#FF0054]" : "text-slate-600 dark:text-slate-400"
             )}>
               {market.outcome_b}
             </span>
@@ -1039,12 +1034,12 @@ export const TradeCard = ({ market }: { market: Market }) => {
 
         <div className="mt-2 rounded border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#1C1C1E]">
           <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100 dark:border-white/5">
-              <label className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                {tradeMode === "buy" ? "Amount" : "Shares"}
-              </label>
-              <span className="text-sm font-semibold text-slate-400 dark:text-slate-500">
-                {tradeMode === "buy" ? "USDCx" : "Shares"}
-              </span>
+            <label className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              {tradeMode === "buy" ? "Amount" : "Shares"}
+            </label>
+            <span className="text-sm font-semibold text-slate-400 dark:text-slate-500">
+              {tradeMode === "buy" ? "USDCx" : "Shares"}
+            </span>
           </div>
           <div className="relative">
             <Input
@@ -1305,10 +1300,10 @@ export const TradeCard = ({ market }: { market: Market }) => {
             tradeDetails.atomicAmount <= 0n ||
             (tradeMode === "buy"
               ? tradeDetails.sharesOut <= 0n ||
-                tradeDetails.atomicAmount > balanceAtomic
+              tradeDetails.atomicAmount > balanceAtomic
               : !selectedSellInput ||
-                !tradeDetails.hasSufficientHoldings ||
-                tradeDetails.collateralOut <= 0n)
+              !tradeDetails.hasSufficientHoldings ||
+              tradeDetails.collateralOut <= 0n)
           }
         >
           {isProcessing ? (
