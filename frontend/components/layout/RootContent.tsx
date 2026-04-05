@@ -9,8 +9,8 @@ interface RootContentProps {
 
 export default function RootContent({ children }: RootContentProps) {
   return (
-    <div className="relative flex min-h-screen text-foreground">
-      <div className="relative flex w-full gap-3 p-3 md:gap-4 md:p-4">
+    <div className="relative flex min-h-screen text-foreground bg-ambient-mesh">
+      <div className="relative flex w-full gap-3 p-3 md:gap-4 md:p-4 section-grid">
         <Sidebar />
         <div className="surface-panel relative flex min-h-[calc(100vh-1.5rem)] flex-1 flex-col overflow-hidden md:min-h-[calc(100vh-2rem)]">
           <Header />

@@ -122,15 +122,15 @@ export default function Sidebar() {
           isOpen ? "w-[16rem]" : "w-[5.75rem]"
         )}
       >
-        <div className="surface-panel flex h-full flex-col overflow-hidden bg-sidebar/92">
-          <div className="flex items-center justify-between border-b border-white/45 px-4 py-4 dark:border-white/10">
+        <div className="surface-panel flex h-full flex-col overflow-hidden bg-sidebar/80 backdrop-blur-3xl shadow-xl">
+          <div className="flex items-center justify-between border-b border-white/45 px-4 py-4 dark:border-white/[0.08]">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-primary/40 bg-primary/10 text-sm font-black text-primary font-mono shadow-[0_0_15px_rgba(117,255,150,0.15)]">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-primary/40 bg-primary/10 text-sm font-black text-primary font-mono shadow-[0_0_20px_rgba(99,102,241,0.3)] backdrop-blur-md">
                 ZK
               </div>
               {isOpen && (
                 <div className="min-w-0">
-                  <h1 className="font-display text-lg font-bold tracking-tight text-white">
+                  <h1 className="font-display text-lg font-bold tracking-tight text-slate-900 dark:text-white">
                     True <span className="text-primary font-light">Markets</span>
                   </h1>
                 </div>

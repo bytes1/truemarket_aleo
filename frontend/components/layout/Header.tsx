@@ -34,10 +34,10 @@ export default function Header() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-white/45 bg-white/60 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/45">
+    <header className="sticky top-0 z-30 w-full border-b border-white/45 bg-white/60 backdrop-blur-3xl dark:border-white/[0.08] dark:bg-black/40 shadow-sm">
       <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-8">
         <div className="flex items-center gap-3 md:hidden">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/40 bg-primary/10 text-sm font-black text-primary font-mono shadow-[0_0_15px_rgba(117,255,150,0.15)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/40 bg-primary/10 text-sm font-black text-primary font-mono shadow-[0_0_20px_rgba(99,102,241,0.3)] backdrop-blur-md">
             ZK
           </div>
           <h1 className="font-display text-2xl font-bold tracking-tight">
