@@ -36,22 +36,15 @@ program true_private_p2p_v3.aleo {
     mapping markets: field => Market;
     mapping offers: field => OfferState;
 
-    fn constructor() {}
+    @noupgrade
+     constructor() {}
 
     fn create_market(
         public market_id: field,
         public oracle: address,
         public closes_at: u32
     ) -> Final {
-        return finalize_create_market(market_id, self.caller, oracle, closes_at);
-    }
-
-    fn finalize_create_market(
-        market_id: field,
-        creator: address,
-        oracle: address,
-        closes_at: u32
-    ) -> Final {
+        let creator: address = self.caller;
         return final {
             assert(!Mapping::contains(markets, market_id));
             assert(closes_at > block.height);
@@ -79,29 +72,19 @@ program true_private_p2p_v3.aleo {
         assert(outcome <= 1u8);
         assert(stake > 0u64);
 
+        let caller: address = self.caller;
         let secret: OfferSecret = OfferSecret {
-            maker: self.caller,
+            maker: caller,
             market_id: market_id,
             outcome: outcome,
             salt: salt,
         };
         let commitment: field = BHP256::hash_to_field(secret);
         let funding: Final = test_usdcx_stablecoin.aleo::transfer_from_public(
-            self.caller,
+            caller,
             self.address,
             stake as u128
         );
-        return finalize_create_offer(funding, offer_id, market_id, stake, self.caller, commitment);
-    }
-
-    fn finalize_create_offer(
-        funding: Final,
-        offer_id: field,
-        market_id: field,
-        stake: u64,
-        maker: address,
-        commitment: field
-    ) -> Final {
         return final {
             assert(!Mapping::contains(offers, offer_id));
             let market: Market = Mapping::get(markets, market_id);
@@ -111,8 +94,8 @@ program true_private_p2p_v3.aleo {
             funding.run();
 
             let offer: OfferState = OfferState {
-                maker: maker,
-                taker: maker,
+                maker: caller,
+                taker: caller,
                 market_id: market_id,
                 stake: stake,
                 commitment: commitment,
@@ -132,32 +115,22 @@ program true_private_p2p_v3.aleo {
         private outcome: u8,
         private salt: field
     ) -> Final {
+        let caller: address = self.caller;
         let secret: OfferSecret = OfferSecret {
-            maker: self.caller,
+            maker: caller,
             market_id: market_id,
             outcome: outcome,
             salt: salt,
         };
         let commitment: field = BHP256::hash_to_field(secret);
         let payout: Final = test_usdcx_stablecoin.aleo::transfer_public(
-            self.caller,
+            caller,
             stake as u128
         );
-        return finalize_cancel_offer(payout, offer_id, market_id, stake, self.caller, commitment);
-    }
-
-    fn finalize_cancel_offer(
-        payout: Final,
-        offer_id: field,
-        market_id: field,
-        stake: u64,
-        maker: address,
-        commitment: field
-    ) -> Final {
         return final {
             let offer: OfferState = Mapping::get(offers, offer_id);
             let market: Market = Mapping::get(markets, market_id);
-            assert(offer.maker == maker);
+            assert(offer.maker == caller);
             assert(offer.is_open == true);
             assert(offer.is_matched == false);
             assert(offer.market_id == market_id);
@@ -191,7 +164,8 @@ program true_private_p2p_v3.aleo {
         private outcome: u8,
         private salt: field
     ) -> Final {
-        assert(self.caller != maker);
+        let caller: address = self.caller;
+        assert(caller != maker);
         assert(outcome <= 1u8);
         assert(stake > 0u64);
 
@@ -203,22 +177,10 @@ program true_private_p2p_v3.aleo {
         };
         let commitment: field = BHP256::hash_to_field(secret);
         let funding: Final = test_usdcx_stablecoin.aleo::transfer_from_public(
-            self.caller,
+            caller,
             self.address,
             stake as u128
         );
-        return finalize_accept_offer(funding, offer_id, market_id, stake, maker, self.caller, commitment);
-    }
-
-    fn finalize_accept_offer(
-        funding: Final,
-        offer_id: field,
-        market_id: field,
-        stake: u64,
-        maker: address,
-        taker: address,
-        commitment: field
-    ) -> Final {
         return final {
             let offer: OfferState = Mapping::get(offers, offer_id);
             let market: Market = Mapping::get(markets, market_id);
@@ -236,7 +198,7 @@ program true_private_p2p_v3.aleo {
 
             let matched_offer: OfferState = OfferState {
                 maker: offer.maker,
-                taker: taker,
+                taker: caller,
                 market_id: offer.market_id,
                 stake: offer.stake,
                 commitment: offer.commitment,
@@ -264,14 +226,7 @@ program true_private_p2p_v3.aleo {
         public market_id: field,
         public winning_outcome: u8
     ) -> Final {
-        return finalize_resolve_market(market_id, self.caller, winning_outcome);
-    }
-
-    fn finalize_resolve_market(
-        market_id: field,
-        caller: address,
-        winning_outcome: u8
-    ) -> Final {
+        let caller: address = self.caller;
         return final {
             let market: Market = Mapping::get(markets, market_id);
             assert(market.oracle == caller);
@@ -293,13 +248,7 @@ program true_private_p2p_v3.aleo {
     }
 
     fn cancel_market(public market_id: field) -> Final {
-        return finalize_cancel_market(market_id, self.caller);
-    }
-
-    fn finalize_cancel_market(
-        market_id: field,
-        caller: address
-    ) -> Final {
+        let caller: address = self.caller;
         return final {
             let market: Market = Mapping::get(markets, market_id);
             assert(market.creator == caller);
@@ -327,34 +276,23 @@ program true_private_p2p_v3.aleo {
     ) -> Final {
         assert(outcome <= 1u8);
 
+        let caller: address = self.caller;
         let secret: OfferSecret = OfferSecret {
-            maker: self.caller,
+            maker: caller,
             market_id: market_id,
             outcome: outcome,
             salt: salt,
         };
         let commitment: field = BHP256::hash_to_field(secret);
         let payout: Final = test_usdcx_stablecoin.aleo::transfer_public(
-            self.caller,
+            caller,
             (stake + stake) as u128
         );
-        return finalize_claim_maker(payout, offer_id, market_id, stake, self.caller, commitment, outcome);
-    }
-
-    fn finalize_claim_maker(
-        payout: Final,
-        offer_id: field,
-        market_id: field,
-        stake: u64,
-        maker: address,
-        commitment: field,
-        outcome: u8
-    ) -> Final {
         return final {
             let offer: OfferState = Mapping::get(offers, offer_id);
             let market: Market = Mapping::get(markets, market_id);
 
-            assert(offer.maker == maker);
+            assert(offer.maker == caller);
             assert(offer.is_matched == true);
             assert(offer.market_id == market_id);
             assert(offer.stake == stake);
@@ -390,6 +328,7 @@ program true_private_p2p_v3.aleo {
     ) -> Final {
         assert(outcome <= 1u8);
 
+        let caller: address = self.caller;
         let secret: OfferSecret = OfferSecret {
             maker: maker,
             market_id: market_id,
@@ -398,28 +337,15 @@ program true_private_p2p_v3.aleo {
         };
         let commitment: field = BHP256::hash_to_field(secret);
         let payout: Final = test_usdcx_stablecoin.aleo::transfer_public(
-            self.caller,
+            caller,
             (stake + stake) as u128
         );
-        return finalize_claim_taker(payout, offer_id, market_id, stake, maker, self.caller, commitment, outcome);
-    }
-
-    fn finalize_claim_taker(
-        payout: Final,
-        offer_id: field,
-        market_id: field,
-        stake: u64,
-        maker: address,
-        taker: address,
-        commitment: field,
-        maker_outcome: u8
-    ) -> Final {
         return final {
             let offer: OfferState = Mapping::get(offers, offer_id);
             let market: Market = Mapping::get(markets, market_id);
 
             assert(offer.maker == maker);
-            assert(offer.taker == taker);
+            assert(offer.taker == caller);
             assert(offer.is_matched == true);
             assert(offer.market_id == market_id);
             assert(offer.stake == stake);
@@ -427,7 +353,7 @@ program true_private_p2p_v3.aleo {
             assert(offer.taker_claimed == false);
             assert(market.is_resolved == true);
             assert(market.winning_outcome <= 1u8);
-            assert(market.winning_outcome != maker_outcome);
+            assert(market.winning_outcome != outcome);
 
             payout.run();
 
@@ -453,33 +379,23 @@ program true_private_p2p_v3.aleo {
         private outcome: u8,
         private salt: field
     ) -> Final {
+        let caller: address = self.caller;
         let secret: OfferSecret = OfferSecret {
-            maker: self.caller,
+            maker: caller,
             market_id: market_id,
             outcome: outcome,
             salt: salt,
         };
         let commitment: field = BHP256::hash_to_field(secret);
         let payout: Final = test_usdcx_stablecoin.aleo::transfer_public(
-            self.caller,
+            caller,
             stake as u128
         );
-        return finalize_refund_maker(payout, offer_id, market_id, stake, self.caller, commitment);
-    }
-
-    fn finalize_refund_maker(
-        payout: Final,
-        offer_id: field,
-        market_id: field,
-        stake: u64,
-        maker: address,
-        commitment: field
-    ) -> Final {
         return final {
             let offer: OfferState = Mapping::get(offers, offer_id);
             let market: Market = Mapping::get(markets, market_id);
 
-            assert(offer.maker == maker);
+            assert(offer.maker == caller);
             assert(offer.market_id == market_id);
             assert(offer.stake == stake);
             assert(offer.commitment == commitment);
@@ -512,6 +428,7 @@ program true_private_p2p_v3.aleo {
         private outcome: u8,
         private salt: field
     ) -> Final {
+        let caller: address = self.caller;
         let secret: OfferSecret = OfferSecret {
             maker: maker,
             market_id: market_id,
@@ -520,27 +437,15 @@ program true_private_p2p_v3.aleo {
         };
         let commitment: field = BHP256::hash_to_field(secret);
         let payout: Final = test_usdcx_stablecoin.aleo::transfer_public(
-            self.caller,
+            caller,
             stake as u128
         );
-        return finalize_refund_taker(payout, offer_id, market_id, stake, maker, self.caller, commitment);
-    }
-
-    fn finalize_refund_taker(
-        payout: Final,
-        offer_id: field,
-        market_id: field,
-        stake: u64,
-        maker: address,
-        taker: address,
-        commitment: field
-    ) -> Final {
         return final {
             let offer: OfferState = Mapping::get(offers, offer_id);
             let market: Market = Mapping::get(markets, market_id);
 
             assert(offer.maker == maker);
-            assert(offer.taker == taker);
+            assert(offer.taker == caller);
             assert(offer.is_matched == true);
             assert(offer.market_id == market_id);
             assert(offer.stake == stake);
