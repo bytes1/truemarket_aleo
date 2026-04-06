@@ -105,10 +105,39 @@ export default function MarketPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <BetModeSwitch active="amm" />
-      </div>
+    <div className="space-y-8 pb-12">
+      {/* ULTRA PREMIUM HERO BANNER */}
+      <section className="relative overflow-hidden rounded-[2rem] bg-slate-900 border border-slate-800 p-8 md:p-12 lg:p-16 shadow-2xl isolate">
+        {/* Animated Background Mesh */}
+        <div className="absolute inset-0 bg-ambient-mesh opacity-50 mix-blend-color-dodge pointer-events-none" />
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary/20 blur-[100px] pointer-events-none animate-pulse" />
+        <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-cyan-500/20 blur-[100px] pointer-events-none" />
+        
+        {/* Content */}
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary/80 mb-4 animate-in fade-in slide-in-from-top-4 duration-700">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              zk-SNARK Powered
+            </div>
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white mb-4 leading-tight animate-in fade-in slide-in-from-left-8 duration-1000">
+              Trade <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-cyan-300">Truth</span> with complete privacy.
+            </h1>
+            <p className="text-lg text-slate-400 max-w-xl animate-in fade-in slide-in-from-left-8 duration-1000 delay-150">
+              The world's first fully confidential prediction market via Aleo. Predict real-world outcomes without exposing your positions.
+            </p>
+          </div>
+          
+          <div className="shrink-0 animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
+            <div className="glass-panel p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
+              <BetModeSwitch active="amm" />
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="grid gap-4 xl:grid-cols-4">
         <div className="surface-card p-6 xl:col-span-4 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -197,11 +226,12 @@ export default function MarketPage() {
 
       {filteredMarkets.length > 0 ? (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-4">
-          {filteredMarkets.map((market) => (
+          {filteredMarkets.map((market, idx) => (
             <Link
               key={market.market_id}
               href={`/market/${market.market_id}`}
-              className="outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+              className="outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-4 focus-visible:ring-offset-background animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-backwards"
+              style={{ animationDelay: `${idx * 100}ms` }}
             >
               <MarketCard market={market} />
             </Link>

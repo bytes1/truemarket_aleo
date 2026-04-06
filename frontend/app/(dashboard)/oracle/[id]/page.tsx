@@ -5,11 +5,9 @@ import { notFound, useParams } from "next/navigation";
 import { MarketChart } from "@/components/market/MarketChart";
 import { MarketHeader } from "@/components/market/MarketHeader";
 import { MarketRules } from "@/components/market/MarketRules";
-import { TradeCard } from "@/components/market/TradeCard";
-import { getStoredMarkets, mergeMarkets } from "@/lib/custom-markets";
 import { OraclePanel } from "@/components/market/OraclePanel";
+import { getStoredMarkets, mergeMarkets } from "@/lib/custom-markets";
 import { data as allMarkets } from "@/lib/data";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 function getMarketById(id: string, storedMarkets = getStoredMarkets()) {
   return mergeMarkets(allMarkets, storedMarkets).find(
@@ -55,7 +53,7 @@ function parseMarketData(
   }
 }
 
-export default function MarketPage() {
+export default function OracleResolutionPage() {
   const params = useParams();
   const id = params?.id as string;
   const [storedMarkets, setStoredMarkets] = useState(() => getStoredMarkets());
@@ -81,6 +79,15 @@ export default function MarketPage() {
 
   return (
     <div className="space-y-6">
+      <div className="mb-2">
+        <h2 className="text-xl font-bold tracking-tight text-slate-800 dark:text-white mb-1">
+          Oracle Resolution Portal
+        </h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Propose the correct outcome for this market or dispute an existing proposal.
+        </p>
+      </div>
+
       <MarketHeader market={market} details={details} />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_390px]">
@@ -90,18 +97,7 @@ export default function MarketPage() {
         </div>
 
         <div className="space-y-6">
-          <Tabs defaultValue="trade" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100 dark:bg-[#1C1C1E] p-1 rounded-xl">
-              <TabsTrigger value="trade" className="rounded-lg font-bold data-[state=active]:bg-white dark:data-[state=active]:bg-[#2c2c2e]">Trade</TabsTrigger>
-              <TabsTrigger value="oracle" className="rounded-lg font-bold data-[state=active]:bg-white dark:data-[state=active]:bg-[#2c2c2e]">Oracle</TabsTrigger>
-            </TabsList>
-            <TabsContent value="trade" className="m-0 border-none outline-none">
-              <TradeCard market={market} />
-            </TabsContent>
-            <TabsContent value="oracle" className="m-0 border-none outline-none">
-              <OraclePanel market={market} />
-            </TabsContent>
-          </Tabs>
+          <OraclePanel market={market} />
         </div>
       </div>
     </div>

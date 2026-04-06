@@ -1,4 +1,5 @@
 import test_usdcx_stablecoin.aleo;
+import true_optimistic_oracle_v3.aleo;
 
 program true_prediction_market_v3.aleo {
     struct Market {
@@ -55,7 +56,8 @@ program true_prediction_market_v3.aleo {
     fn create_market(
         public market_id: field,
         public closes_at: u32,
-        public initial_liquidity: u64
+        public initial_liquidity: u64,
+        public bond_amount: u64
     ) -> Final {
         assert(initial_liquidity > 0u64);
 
@@ -65,11 +67,15 @@ program true_prediction_market_v3.aleo {
             initial_liquidity as u128
         );
         let creator: address = self.caller;
+        
+        let oracle_init: Final = true_optimistic_oracle_v3.aleo::initialize_market(market_id, bond_amount, creator);
+
         return final {
             assert(!Mapping::contains(markets, market_id));
             assert(closes_at > block.height);
 
             funding.run();
+            oracle_init.run();
 
             let market: Market = Market {
                 creator: creator,
@@ -92,15 +98,19 @@ program true_prediction_market_v3.aleo {
         public market_id: field,
         public creator: address,
         public closes_at: u32,
-        public initial_liquidity: u64
+        public initial_liquidity: u64,
+        public bond_amount: u64
     ) -> Final {
         let caller: address = self.caller;
+        let oracle_init: Final = true_optimistic_oracle_v3.aleo::initialize_market(market_id, bond_amount, creator);
         return final {
             let launchpad: address = Mapping::get(configured_launchpad, LAUNCHPAD_SLOT);
             assert(caller == launchpad);
             assert(initial_liquidity > 0u64);
             assert(!Mapping::contains(markets, market_id));
             assert(closes_at > block.height);
+
+            oracle_init.run();
 
             let market: Market = Market {
                 creator: creator,
@@ -277,13 +287,13 @@ program true_prediction_market_v3.aleo {
     }
 
     fn resolve_market(
-        public market_id: field,
-        public winning_outcome: u8
+        resolution: true_optimistic_oracle_v3.aleo::ResolutionRecord
     ) -> Final {
-        let caller: address = self.caller;
+        let market_id: field = resolution.market_id;
+        let winning_outcome: u8 = resolution.winning_outcome;
+        
         return final {
             let market: Market = Mapping::get(markets, market_id);
-            assert(market.creator == caller);
             assert(market.is_resolved == false);
             assert(winning_outcome <= 1u8);
 
@@ -300,7 +310,7 @@ program true_prediction_market_v3.aleo {
 
     fn claim_private(
         position: Position,
-        public shares_to_claim: u64
+        shares_to_claim: u64
     ) -> (Position, Final) {
         assert(position.owner == self.caller);
         assert(shares_to_claim > 0u64);
@@ -338,6 +348,100 @@ program true_prediction_market_v3.aleo {
                 payout.run();
             }
         );
+    }
+
+    // ──────────────────────────────────────────────────
+    //  PRIVACY-ENHANCING RECORD MANAGEMENT
+    //  Pure private transitions — no finalization, no
+    //  public state touched, fully shielded on-chain.
+    // ──────────────────────────────────────────────────
+
+    /// Merge two Position records for the same market+outcome into one.
+    /// Breaks the linkability between multiple small buys.
+    /// An observer sees two records consumed and one produced, but cannot
+    /// determine the combined share count or which records were merged.
+    fn merge_positions(
+        position_a: Position,
+        position_b: Position
+    ) -> Position {
+        assert(position_a.owner == self.caller);
+        assert(position_b.owner == self.caller);
+        assert(position_a.market_id == position_b.market_id);
+        assert(position_a.outcome == position_b.outcome);
+
+        return Position {
+            owner: position_a.owner,
+            market_id: position_a.market_id,
+            outcome: position_a.outcome,
+            shares: position_a.shares + position_b.shares,
+        };
+    }
+
+    /// Split a Position record into two smaller records.
+    /// Allows a user to fragment their holdings so that future sells
+    /// don't reveal the full position size. The split amounts are
+    /// private — the chain only sees one record consumed and two produced.
+    fn split_position(
+        position: Position,
+        private split_amount: u64
+    ) -> (Position, Position) {
+        assert(position.owner == self.caller);
+        assert(split_amount > 0u64);
+        assert(split_amount < position.shares);
+
+        let first: Position = Position {
+            owner: position.owner,
+            market_id: position.market_id,
+            outcome: position.outcome,
+            shares: split_amount,
+        };
+
+        let second: Position = Position {
+            owner: position.owner,
+            market_id: position.market_id,
+            outcome: position.outcome,
+            shares: position.shares - split_amount,
+        };
+
+        return (first, second);
+    }
+
+    /// Privately transfer a Position to a new owner.
+    /// Enables OTC position trading without revealing the market,
+    /// outcome, or share amount on-chain. The original record is
+    /// consumed and a new record minted to the recipient — only
+    /// the two parties know the transfer happened.
+    fn transfer_position(
+        position: Position,
+        private recipient: address
+    ) -> Position {
+        assert(position.owner == self.caller);
+
+        return Position {
+            owner: recipient,
+            market_id: position.market_id,
+            outcome: position.outcome,
+            shares: position.shares,
+        };
+    }
+
+    /// "Shield" a position by re-minting it to yourself.
+    /// This creates a fresh record with a new nonce, breaking the
+    /// on-chain link between the old record (from a buy_private tx)
+    /// and this new record. Analogous to a self-transfer in Zcash.
+    /// Use this before selling to prevent observers from correlating
+    /// your buy transaction with your sell transaction.
+    fn shield_position(
+        position: Position
+    ) -> Position {
+        assert(position.owner == self.caller);
+
+        return Position {
+            owner: position.owner,
+            market_id: position.market_id,
+            outcome: position.outcome,
+            shares: position.shares,
+        };
     }
 }
 

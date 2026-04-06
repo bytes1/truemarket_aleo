@@ -12,6 +12,7 @@ import {
   Settings2,
   Sparkles,
   Rocket,
+  Scale,
   Trophy,
   type LucideIcon,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const mainNavigation: NavItem[] = [
   { name: "Create Market", href: "/create", icon: Sparkles },
   { name: "P2P Bets", href: "/p2p", icon: HandCoins },
   { name: "Launchpad", href: "/launchpad", icon: Rocket },
+  { name: "Oracle", href: "/oracle", icon: Scale },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { name: "Faucet", href: "/faucet", icon: Droplets },
 ];

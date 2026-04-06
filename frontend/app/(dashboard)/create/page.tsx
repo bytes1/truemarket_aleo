@@ -49,6 +49,7 @@ type CreateFormState = {
   description: string;
   closeHeight: string;
   initialLiquidity: string;
+  oracleStake: string;
   sourceLink: string;
 };
 
@@ -70,6 +71,7 @@ const defaultCreateForm: CreateFormState = {
   description: "",
   closeHeight: "",
   initialLiquidity: "",
+  oracleStake: "10", // Default 10 USDCx bond
   sourceLink: "",
 };
 
@@ -128,6 +130,7 @@ export default function CreateMarketPage() {
 
     const closeHeight = Number(createForm.closeHeight);
     const initialLiquidity = parseUnits(createForm.initialLiquidity);
+    const bondAmount = parseUnits(createForm.oracleStake);
     if (
       !createForm.title.trim() ||
       !createForm.outcomeA.trim() ||
@@ -143,6 +146,10 @@ export default function CreateMarketPage() {
     }
     if (initialLiquidity <= 0n) {
       setCreateStatus("Enter a valid initial liquidity amount.");
+      return;
+    }
+    if (bondAmount <= 0n) {
+      setCreateStatus("Enter a valid oracle bond amount.");
       return;
     }
 
@@ -164,7 +171,7 @@ export default function CreateMarketPage() {
       await executeTransaction({
         program: MARKET_PROGRAM_ID,
         function: "create_market",
-        inputs: [marketField, `${closeHeight}u32`, `${initialLiquidity}u64`],
+        inputs: [marketField, `${closeHeight}u32`, `${initialLiquidity}u64`, `${bondAmount}u64`],
         fee: 180000,
         privateFee: false,
       });
@@ -303,6 +310,21 @@ export default function CreateMarketPage() {
               />
             </label>
             <label className="block">
+              <span className="mb-2 block text-sm font-medium">Oracle Stake (USDCx)</span>
+              <input
+                type="number"
+                value={createForm.oracleStake}
+                onChange={(event) =>
+                  updateCreateForm("oracleStake", event.target.value)
+                }
+                placeholder="10"
+                className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/50 dark:border-white/10 dark:bg-[#1C1C1E]"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="block">
               <span className="mb-2 block text-sm font-medium">Reference Link</span>
               <input
                 type="url"
@@ -312,6 +334,7 @@ export default function CreateMarketPage() {
                 className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/50 dark:border-white/10 dark:bg-[#1C1C1E]"
               />
             </label>
+            <div className="hidden sm:block"></div>
           </div>
 
           <div className="pt-4">

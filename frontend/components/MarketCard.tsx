@@ -47,19 +47,19 @@ export const MarketCard = ({ market }: { market: Market }) => {
       </div>
 
       <div className="mt-6 flex items-center gap-2">
-        <div className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 px-3 py-2.5 flex justify-between items-center transition-all duration-300 group-hover:bg-primary/5 dark:group-hover:bg-primary/10 group-hover:border-primary/20 dark:group-hover:border-primary/30 shadow-sm shadow-blue-500/0 group-hover:shadow-[0_0_15px_-3px_rgba(99,102,241,0.15)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent dark:via-white/10 -translate-x-full group-hover:animate-[shimmer_1.5s_ease-in-out_infinite]" />
-            <span className="text-sm font-semibold text-primary/80 dark:text-primary z-10">
+        <div className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 px-3 py-2.5 flex justify-between items-center transition-all duration-500 group-hover:bg-primary/10 dark:group-hover:bg-primary/20 group-hover:border-primary/30 dark:group-hover:border-primary/40 shadow-sm group-hover:shadow-[0_0_20px_-3px_rgba(99,102,241,0.25)] relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-white/20 -translate-x-full group-hover:animate-[shimmer_1s_ease-in-out_infinite]" />
+            <span className="text-sm font-semibold text-primary/90 dark:text-primary z-10 transition-colors group-hover:text-primary dark:group-hover:text-white">
               {compactLabel(market.outcome_a)}
             </span>
-            <span className="text-sm font-bold text-slate-900 dark:text-white z-10 drop-shadow-sm">{market.yesPercentage}%</span>
+            <span className="text-sm font-black text-slate-900 dark:text-white z-10 drop-shadow-sm group-hover:scale-110 transition-transform origin-right">{market.yesPercentage}%</span>
         </div>
-        <div className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 px-3 py-2.5 flex justify-between items-center transition-all duration-300 group-hover:bg-red-500/5 dark:group-hover:bg-red-500/10 group-hover:border-red-500/20 dark:group-hover:border-red-500/30 shadow-sm shadow-red-500/0 group-hover:shadow-[0_0_15px_-3px_rgba(239,68,68,0.15)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent dark:via-white/10 -translate-x-full group-hover:animate-[shimmer_1.5s_ease-in-out_infinite_0.1s]" />
-            <span className="text-sm font-semibold text-red-500 z-10">
+        <div className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 px-3 py-2.5 flex justify-between items-center transition-all duration-500 group-hover:bg-cyan-500/10 dark:group-hover:bg-cyan-500/20 group-hover:border-cyan-500/30 dark:group-hover:border-cyan-500/40 shadow-sm group-hover:shadow-[0_0_20px_-3px_rgba(6,182,212,0.25)] relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-white/20 -translate-x-full group-hover:animate-[shimmer_1s_ease-in-out_infinite_0.15s]" />
+            <span className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 z-10 transition-colors group-hover:text-cyan-600 dark:group-hover:text-white">
               {compactLabel(market.outcome_b)}
             </span>
-            <span className="text-sm font-bold text-slate-900 dark:text-white z-10 drop-shadow-sm">{market.noPercentage}%</span>
+            <span className="text-sm font-black text-slate-900 dark:text-white z-10 drop-shadow-sm group-hover:scale-110 transition-transform origin-right">{market.noPercentage}%</span>
         </div>
       </div>
     </article>

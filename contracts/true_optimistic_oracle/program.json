@@ -1,0 +1,14 @@
+{
+    "program": "true_optimistic_oracle_v3.aleo",
+    "version": "0.1.0",
+    "description": "Optimistic oracle mechanism for resolving markets with economic guarantees",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "test_usdcx_stablecoin.aleo",
+            "location": "network",
+            "network": "testnet"
+        }
+    ],
+    "dev_dependencies": null
+}
