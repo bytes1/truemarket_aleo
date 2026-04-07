@@ -4,13 +4,21 @@ import { useEffect, useMemo, useState } from "react";
 import { useWallet } from "@provablehq/aleo-wallet-adaptor-react";
 import {
   AlertCircle,
+  ArrowUpRight,
   BadgeDollarSign,
   Eye,
+  Layers,
   Loader2,
+  Lock,
   PlayCircle,
   PlusCircle,
   RefreshCw,
+  Rocket,
+  ShieldCheck,
+  TrendingUp,
+  Users,
   Wallet,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
 const LAUNCHPAD_PROGRAM_ID =
-  process.env.NEXT_PUBLIC_LAUNCHPAD_PROGRAM_ID ?? "true_market_launchpad_v2.aleo";
+  process.env.NEXT_PUBLIC_LAUNCHPAD_PROGRAM_ID ?? "true_market_launchpad_v3.aleo";
 const LAUNCHPAD_ADAPTER_ADDRESS =
   process.env.NEXT_PUBLIC_LAUNCHPAD_ADAPTER_ADDRESS ?? "launchpad_usdcx_adapter.aleo";
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";
@@ -850,236 +858,339 @@ export default function LaunchpadPage() {
   };
 
   if (!mounted) {
-    return <div className="surface-card h-[760px] animate-pulse" />;
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-32 rounded-2xl bg-white/5" />
+        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-48 rounded-2xl bg-white/5" />
+            ))}
+          </div>
+          <div className="h-[600px] rounded-2xl bg-white/5" />
+        </div>
+      </div>
+    );
   }
 
+  const categoryColors: Record<string, { bg: string; text: string; border: string }> = {
+    Crypto: {
+      bg: "rgba(99,102,241,0.1)",
+      text: "#818cf8",
+      border: "rgba(99,102,241,0.25)",
+    },
+    Aleo: {
+      bg: "rgba(6,182,212,0.1)",
+      text: "#22d3ee",
+      border: "rgba(6,182,212,0.25)",
+    },
+    Macro: {
+      bg: "rgba(245,158,11,0.1)",
+      text: "#fbbf24",
+      border: "rgba(245,158,11,0.25)",
+    },
+  };
+
   return (
-    <div className="space-y-8">      <section className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
-      <div className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="surface-muted p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              Rounds
-            </p>
-            <p className="mt-2 font-display text-3xl font-bold">
-              {launchRounds.length}
+    <div className="space-y-7 animate-fade-up">
+      {/* â”€â”€ Hero stats strip â”€â”€ */}
+      <div className="relative overflow-hidden rounded-2xl p-6"
+        style={{
+          background: "linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(6,182,212,0.08) 50%, rgba(139,92,246,0.1) 100%)",
+          border: "1px solid rgba(99,102,241,0.18)",
+          boxShadow: "0 8px 32px -8px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.06)",
+        }}
+      >
+        {/* Grid dot background */}
+        <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+        {/* Glow orb */}
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-20 blur-3xl"
+          style={{ background: "radial-gradient(circle, #6366f1, transparent 70%)" }} />
+
+        <div className="relative flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg"
+                style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", boxShadow: "0 0 20px rgba(99,102,241,0.5)" }}>
+                <Rocket size={15} className="text-white" />
+              </div>
+              <span className="eyebrow">Launchpad</span>
+            </div>
+            <h1 className="font-display text-3xl font-bold tracking-tight">
+              Bootstrap Market{" "}
+              <span className="text-gradient-brand">Liquidity</span>
+            </h1>
+            <p className="mt-1.5 text-sm text-muted-foreground max-w-md leading-relaxed">
+              Contribute private liquidity to upcoming prediction markets before they open. Your position is fully shielded on-chain using ZK proofs.
             </p>
           </div>
-          <div className="surface-muted p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              Committed
-            </p>
-            <p className="mt-2 font-display text-3xl font-bold">
-              {formatCompactUsd(totalCommitted)}
-            </p>
-          </div>
-          <div className="surface-muted p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              Live
-            </p>
-            <p className="mt-2 font-display text-3xl font-bold">
-              {totalLiveRounds}
-            </p>
+
+          <div className="flex flex-wrap gap-4">
+            {[
+              { label: "Active Rounds", value: launchRounds.length.toString(), icon: Layers, color: "#6366f1" },
+              { label: "Total Committed", value: formatCompactUsd(totalCommitted), icon: TrendingUp, color: "#06b6d4" },
+              { label: "Live Rounds", value: totalLiveRounds.toString(), icon: Zap, color: "#10b981" },
+            ].map(({ label, value, icon: Icon, color }) => (
+              <div key={label} className="stat-card min-w-[120px]">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon size={14} style={{ color }} />
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    {label}
+                  </p>
+                </div>
+                <p className="font-display text-2xl font-bold" style={{ color }}>
+                  {value}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="font-display text-3xl font-bold tracking-tight">
-            Rounds
-          </h2>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={refreshPublicData}
-            disabled={isRefreshingRounds}
-            className="h-11 rounded-2xl"
-          >
-            {isRefreshingRounds ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Refreshing
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh
-              </>
-            )}
-          </Button>
-        </div>
-
-        <div className="space-y-4">
-          {launchRounds.map((round) => {
-            const onchain = roundStates[round.id];
-            const totalLiquidity = onchain?.totalLiquidity ?? 0n;
-            const targetLiquidity =
-              onchain?.targetLiquidity && onchain.targetLiquidity > 0n
-                ? onchain.targetLiquidity
-                : round.targetLiquidity;
-            const progress =
-              targetLiquidity > 0n
-                ? Math.min(
-                  100,
-                  (Number(totalLiquidity) / Number(targetLiquidity)) * 100
-                )
-                : 0;
-            const isActive = selectedRoundId === round.id;
-            const statusLabel = !onchain?.exists
-              ? "not initialized"
-              : onchain.isLive
-                ? "live"
-                : "building";
-
-            return (
-              <button
-                key={round.id}
-                type="button"
-                onClick={() => setSelectedRoundId(round.id)}
-                className={cn(
-                  "surface-card w-full p-5 text-left transition-all duration-200",
-                  isActive &&
-                  "border-transparent shadow-[0_28px_60px_-34px_rgba(14,165,233,0.42)] ring-1 ring-sky-400/30"
-                )}
-              >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-slate-200/80 bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-                        {round.category}
-                      </span>
-                      <span
-                        className={cn(
-                          "rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]",
-                          statusLabel === "live"
-                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200"
-                            : statusLabel === "building"
-                              ? "border-sky-500/20 bg-sky-500/10 text-sky-800 dark:text-sky-200"
-                              : "border-amber-400/20 bg-amber-400/12 text-amber-900 dark:text-amber-100"
-                        )}
-                      >
-                        {statusLabel}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-3 max-w-2xl font-display text-2xl font-bold tracking-tight">
-                      {round.title}
-                    </h3>
-
-                  </div>
-
-                  <div className="rounded-[22px] border border-slate-200/70 bg-white/88 px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                      Launch closes
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-foreground">
-                      {round.closeLabel}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Block {onchain?.closesAt || round.closeHeight}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-[20px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                      Committed
-                    </p>
-                    <p className="mt-2 text-lg font-semibold">
-                      {formatDisplayUsd(totalLiquidity)}
-                    </p>
-                  </div>
-                  <div className="rounded-[20px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                      Target
-                    </p>
-                    <p className="mt-2 text-lg font-semibold">
-                      {formatDisplayUsd(targetLiquidity)}
-                    </p>
-                  </div>
-                  <div className="rounded-[20px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                      Positions
-                    </p>
-                    <p className="mt-2 text-lg font-semibold">
-                      {onchain?.contributionCount ?? 0}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>Progress</span>
-                    <span>{progress.toFixed(0)}%</span>
-                  </div>
-                  <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200/80 dark:bg-white/10">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-300 transition-all duration-300"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+        {/* Privacy features bar */}
+        <div className="relative mt-5 flex flex-wrap gap-3 pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          {[
+            { icon: ShieldCheck, label: "ZK Private positions" },
+            { icon: Lock, label: "Zero-knowledge proofs" },
+            { icon: Users, label: "Community-funded depth" },
+          ].map(({ icon: Icon, label }) => (
+            <div key={label} className="feature-tag">
+              <Icon size={11} />
+              {label}
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="space-y-5">
-        <div className="surface-card p-6">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="font-display text-3xl font-bold tracking-tight">
-              {selectedPreset.title}
-            </h2>
-            {connected && (
-              <div className="rounded-full border border-white/55 bg-white/72 px-3 py-2 text-sm font-medium dark:border-white/10 dark:bg-white/5">
-                <span className="inline-flex items-center gap-2">
-                  <Wallet className="h-4 w-4" />
-                  {balanceValue} USDCx
-                </span>
+      {/* â”€â”€ Main content grid â”€â”€ */}
+      <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+        {/* Left: Round cards */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-xl font-bold tracking-tight">Launch Rounds</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Select a round to contribute liquidity</p>
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={refreshPublicData}
+              disabled={isRefreshingRounds}
+              className="h-9 rounded-xl gap-2 text-xs font-semibold"
+              style={{ borderColor: "rgba(99,102,241,0.2)", background: "rgba(99,102,241,0.06)" }}
+            >
+              {isRefreshingRounds ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5" />
+              )}
+              Refresh
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            {launchRounds.map((round) => {
+              const onchain = roundStates[round.id];
+              const totalLiquidity = onchain?.totalLiquidity ?? 0n;
+              const targetLiquidity =
+                onchain?.targetLiquidity && onchain.targetLiquidity > 0n
+                  ? onchain.targetLiquidity
+                  : round.targetLiquidity;
+              const progress =
+                targetLiquidity > 0n
+                  ? Math.min(100, (Number(totalLiquidity) / Number(targetLiquidity)) * 100)
+                  : 0;
+              const isActive = selectedRoundId === round.id;
+              const statusLabel = !onchain?.exists
+                ? "pending"
+                : onchain.isLive
+                  ? "live"
+                  : "building";
+              const cat = categoryColors[round.category] ?? categoryColors.Crypto;
+
+              return (
+                <button
+                  key={round.id}
+                  type="button"
+                  onClick={() => setSelectedRoundId(round.id)}
+                  className="surface-card surface-card-hover w-full p-5 text-left transition-all duration-300 group"
+                  style={isActive ? {
+                    borderColor: "rgba(99,102,241,0.35)",
+                    boxShadow: "0 0 0 1px rgba(99,102,241,0.25), 0 8px 32px -8px rgba(99,102,241,0.25), inset 0 1px 0 rgba(255,255,255,0.06)",
+                  } : {}}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      {/* Badges row */}
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+                          style={{ background: cat.bg, border: `1px solid ${cat.border}`, color: cat.text }}>
+                          {round.category}
+                        </span>
+
+                        {statusLabel === "live" ? (
+                          <span className="badge-live">
+                            <span className="pulse-dot" />
+                            Live
+                          </span>
+                        ) : statusLabel === "building" ? (
+                          <span className="badge-building">
+                            <span className="pulse-dot" />
+                            Building
+                          </span>
+                        ) : (
+                          <span className="badge-pending">
+                            Pending Init
+                          </span>
+                        )}
+
+                        {isActive && (
+                          <span className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-wider"
+                            style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8" }}>
+                            Selected
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="font-display font-semibold text-base leading-snug line-clamp-2 pr-4">
+                        {round.title}
+                      </h3>
+                      <p className="mt-1.5 text-xs text-muted-foreground line-clamp-1 leading-relaxed">
+                        {round.summary}
+                      </p>
+                    </div>
+
+                    {/* Close block badge */}
+                    <div className="flex-shrink-0 text-right"
+                      style={{ minWidth: "100px" }}>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Closes</p>
+                      <p className="mt-1 text-sm font-bold text-foreground">{round.closeLabel}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono">
+                        #{onchain?.closesAt || round.closeHeight}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Stats row */}
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Committed", value: formatDisplayUsd(totalLiquidity) + " USD" },
+                      { label: "Target", value: formatDisplayUsd(targetLiquidity) + " USD" },
+                      { label: "Contributors", value: String(onchain?.contributionCount ?? 0) },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="rounded-xl p-2.5 text-center"
+                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                        <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
+                        <p className="mt-1 text-sm font-bold text-foreground">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground mb-1.5">
+                      <span>Pool progress</span>
+                      <span style={{ color: progress >= 100 ? "#10b981" : "#6366f1" }}>
+                        {progress.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full"
+                      style={{ background: "rgba(255,255,255,0.06)" }}>
+                      <div
+                        className="h-full rounded-full progress-shine transition-all duration-700"
+                        style={{
+                          width: `${progress}%`,
+                          background: progress >= 100
+                            ? "linear-gradient(90deg, #10b981, #34d399)"
+                            : "linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right: Action panel */}
+        <div className="space-y-4">
+          {/* Action card */}
+          <div className="surface-card overflow-visible">
+            {/* Card header with gradient */}
+            <div className="relative overflow-hidden rounded-t-2xl px-6 pt-6 pb-5"
+              style={{
+                background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.06))",
+                borderBottom: "1px solid rgba(255,255,255,0.05)",
+              }}>
+              <div className="absolute right-4 top-4 opacity-10">
+                <Rocket size={64} />
               </div>
-            )}
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[22px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Round status
-              </p>
-              <p className="mt-2 text-lg font-semibold">
-                {!selectedRoundState.exists
-                  ? "Not initialized"
-                  : selectedRoundState.isLive
-                    ? "Launch ready"
-                    : "Collecting liquidity"}
-              </p>
-            </div>
-            <div className="rounded-[22px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Current committed
-              </p>
-              <p className="mt-2 text-lg font-semibold">
-                {formatDisplayUsd(selectedRoundState.totalLiquidity)}
-              </p>
-            </div>
-          </div>
-
-          {!selectedRoundState.exists ? (
-            <div className="mt-5 rounded-[24px] border border-amber-300/20 bg-amber-300/10 p-5">
-              <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-amber-300/18 p-3 text-amber-700 dark:text-amber-200">
-                  <PlusCircle className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-amber-900 dark:text-amber-100">
-                    This launch round has not been initialized onchain yet.
+              <div className="relative flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                    Selected Round
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-amber-900/75 dark:text-amber-100/80">
-                    Create the round first, then contributors can provide USDCx
-                    liquidity into it.
+                  <h2 className="font-display text-base font-bold leading-snug line-clamp-2">
+                    {selectedPreset.title}
+                  </h2>
+                </div>
+                {connected && (
+                  <div className="flex-shrink-0 flex items-center gap-1.5 rounded-xl px-3 py-2"
+                    style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)" }}>
+                    <Wallet size={13} style={{ color: "#818cf8" }} />
+                    <span className="text-xs font-semibold" style={{ color: "#818cf8" }}>
+                      {balanceValue} USDCx
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Round status + committed */}
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="rounded-xl p-3"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Status</p>
+                  <p className="mt-1.5 text-sm font-bold">
+                    {!selectedRoundState.exists
+                      ? "Not initialized"
+                      : selectedRoundState.isLive
+                        ? "ðŸŸ¢ Launch ready"
+                        : "ðŸ”µ Collecting"}
+                  </p>
+                </div>
+                <div className="rounded-xl p-3"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Committed</p>
+                  <p className="mt-1.5 text-sm font-bold">{formatDisplayUsd(selectedRoundState.totalLiquidity)} USD</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {!selectedRoundState.exists ? (
+                /* â”€â”€ Initialize prompt â”€â”€ */
+                <div className="rounded-2xl p-5 text-center"
+                  style={{
+                    background: "rgba(245,158,11,0.07)",
+                    border: "1px solid rgba(245,158,11,0.2)",
+                  }}>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl mx-auto mb-3"
+                    style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.25)" }}>
+                    <PlusCircle size={22} style={{ color: "#fbbf24" }} />
+                  </div>
+                  <p className="font-semibold text-sm mb-1" style={{ color: "#fbbf24" }}>
+                    Round not initialized onchain
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+                    Create the round first, then contributors can provide USDCx liquidity into it.
                   </p>
                   <Button
-                    className="mt-4 h-12 rounded-2xl"
+                    className="h-11 w-full rounded-xl font-semibold text-sm btn-glow"
+                    style={{
+                      background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                      boxShadow: "0 4px 20px -4px rgba(245,158,11,0.5)",
+                    }}
                     onClick={handleCreateRound}
                     disabled={!connected || isProcessing}
                   >
@@ -1091,376 +1202,388 @@ export default function LaunchpadPage() {
                     Initialize Launch Round
                   </Button>
                 </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setActionMode("provide")}
-                  className={cn(
-                    "rounded-[24px] border px-4 py-3 text-left transition-all duration-200",
-                    actionMode === "provide"
-                      ? "border-transparent bg-slate-950 text-white shadow-[0_18px_35px_-24px_rgba(15,23,42,0.85)]"
-                      : "border-slate-200/80 bg-white/88 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/8"
-                  )}
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em]">
-                    Action
-                  </p>
-                  <p className="mt-2 text-lg font-semibold">Provide</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActionMode("withdraw")}
-                  className={cn(
-                    "rounded-[24px] border px-4 py-3 text-left transition-all duration-200",
-                    actionMode === "withdraw"
-                      ? "border-transparent bg-emerald-500 text-white shadow-[0_18px_35px_-24px_rgba(16,185,129,0.85)]"
-                      : "border-slate-200/80 bg-white/88 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/8"
-                  )}
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em]">
-                    Action
-                  </p>
-                  <p className="mt-2 text-lg font-semibold">Withdraw</p>
-                </button>
-              </div>
-
-              <div className="mt-4 rounded-[24px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-                <label className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {actionMode === "provide"
-                    ? "USDCx contribution"
-                    : "USDCx withdrawal"}
-                </label>
-                <div className="relative mt-3">
-                  <Input
-                    type="number"
-                    value={amountStr}
-                    onChange={(event) => setAmountStr(event.target.value)}
-                    placeholder="0.00"
-                    className="h-14 rounded-2xl border-slate-200/80 bg-white pr-20 text-xl font-semibold shadow-none dark:border-white/10 dark:bg-slate-950/35"
-                    disabled={isProcessing}
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
-                    USDCx
-                  </span>
-                </div>
-
-                <div className="mt-3 space-y-1 text-sm text-muted-foreground">
-                  {actionMode === "provide" ? (
-                    <>
-                      <p>
-                        Wallet balance:{" "}
-                        <span className="font-semibold text-foreground">
-                          {balanceValue} USDCx
-                        </span>
-                      </p>
-                      <p>
-                        {LAUNCHPAD_ADAPTER_ADDRESS
-                          ? "Providing liquidity will approve USDCx and mint a private launch position record."
-                          : "Set NEXT_PUBLIC_LAUNCHPAD_ADAPTER_ADDRESS after deployment to enable USDCx approvals."}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p>
-                        Withdrawable from decrypted position:{" "}
-                        <span className="font-semibold text-foreground">
-                          {formatUnits(selectedWithdrawCapacity, TOKEN_DECIMALS, 4)}
-                        </span>
-                      </p>
-                      <p>
-                        {selectedWithdrawInput
-                          ? selectedPlaintextPosition
-                            ? "A matching launch position record is ready for withdrawal."
-                            : "The decrypted launch position will be used for withdrawal."
-                          : "Decrypt a launch position for this round before withdrawing."}
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-[22px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                    Target pool
-                  </p>
-                  <p className="mt-2 text-lg font-semibold">
-                    {formatDisplayUsd(selectedRoundState.targetLiquidity)}
-                  </p>
-                </div>
-                <div className="rounded-[22px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                    Your decrypted total
-                  </p>
-                  <p className="mt-2 text-lg font-semibold">
-                    {formatDisplayUsd(currentRoundDecryptedTotal)}
-                  </p>
-                </div>
-                <div className="rounded-[22px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                    Close block
-                  </p>
-                  <p className="mt-2 text-lg font-semibold">
-                    {selectedRoundState.closesAt || selectedPreset.closeHeight}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <Button
-                  className="h-14 rounded-2xl text-base font-semibold shadow-[0_20px_45px_-28px_rgba(14,165,233,0.9)]"
-                  onClick={
-                    actionMode === "provide"
-                      ? handleProvideLiquidity
-                      : handleWithdrawLiquidity
-                  }
-                  disabled={
-                    !connected ||
-                    !amountStr ||
-                    parseFloat(amountStr) <= 0 ||
-                    isProcessing ||
-                    (actionMode === "provide" ? !canProvide : !canWithdraw)
-                  }
-                >
-                  {isProcessing ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  ) : actionMode === "provide" ? (
-                    <>
-                      <BadgeDollarSign className="mr-2 h-5 w-5" />
-                      Provide Liquidity
-                    </>
-                  ) : (
-                    <>
-                      <Wallet className="mr-2 h-5 w-5" />
-                      Withdraw Liquidity
-                    </>
-                  )}
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  className="h-14 rounded-2xl text-base font-semibold"
-                  onClick={handleActivateRound}
-                  disabled={!connected || isProcessing || !canActivate}
-                >
-                  {isProcessing ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  ) : (
-                    <>
-                      <PlayCircle className="mr-2 h-5 w-5" />
-                      Activate Round
-                    </>
-                  )}
-                </Button>
-              </div>
-            </>
-          )}
-
-          {txStatus && (
-            <div className="mt-4 rounded-2xl border border-sky-500/15 bg-sky-500/8 px-4 py-3 text-center text-sm font-medium text-sky-700 dark:text-sky-300">
-              {txStatus}
-            </div>
-          )}
-
-          {actionMode === "provide" &&
-            atomicAmount > balanceAtomic &&
-            amountStr.trim() !== "" && (
-              <div className="mt-4 rounded-2xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-center text-sm font-medium text-amber-900 dark:text-amber-100">
-                Insufficient USDCx balance for this launch contribution.
-              </div>
-            )}
-        </div>
-
-        <div className="surface-card p-6">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="font-display text-2xl font-bold tracking-tight">
-              Your records
-            </h3>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={loadSenderRecords}
-              disabled={isRefreshingRecords}
-              className="h-11 rounded-2xl"
-            >
-              {isRefreshingRecords ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading
-                </>
               ) : (
                 <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Load Records
+                  {/* â”€â”€ Action mode toggle â”€â”€ */}
+                  <div className="grid grid-cols-2 rounded-xl p-1 gap-1"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    {(["provide", "withdraw"] as const).map((mode) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() => setActionMode(mode)}
+                        className={cn(
+                          "rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200",
+                          actionMode === mode
+                            ? mode === "provide"
+                              ? "text-white"
+                              : "text-white"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                        style={actionMode === mode ? {
+                          background: mode === "provide"
+                            ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                            : "linear-gradient(135deg, #059669, #10b981)",
+                          boxShadow: mode === "provide"
+                            ? "0 4px 16px -4px rgba(99,102,241,0.6)"
+                            : "0 4px 16px -4px rgba(16,185,129,0.5)",
+                        } : {}}
+                      >
+                        {mode === "provide" ? "Provide Liquidity" : "Withdraw"}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* â”€â”€ Amount input â”€â”€ */}
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-2">
+                      {actionMode === "provide" ? "Contribution amount" : "Withdrawal amount"}
+                    </label>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        value={amountStr}
+                        onChange={(e) => setAmountStr(e.target.value)}
+                        placeholder="0.00"
+                        disabled={isProcessing}
+                        className="h-14 rounded-xl pr-20 text-xl font-bold"
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(99,102,241,0.2)",
+                          fontSize: "1.25rem",
+                          boxShadow: "none",
+                        }}
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground pointer-events-none">
+                        USDCx
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                      {actionMode === "provide" ? (
+                        <>
+                          <span>Balance: <span className="text-foreground font-semibold">{balanceValue} USDCx</span></span>
+                          <button
+                            type="button"
+                            onClick={() => setAmountStr(formatDisplayUsd(balanceAtomic))}
+                            className="font-semibold hover:text-primary transition-colors"
+                            style={{ color: "#818cf8" }}
+                          >
+                            Max
+                          </button>
+                        </>
+                      ) : (
+                        <span>Available: <span className="text-foreground font-semibold">{formatUnits(selectedWithdrawCapacity, TOKEN_DECIMALS, 4)} USDCx</span></span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* â”€â”€ Info row â”€â”€ */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Target pool", value: formatDisplayUsd(selectedRoundState.targetLiquidity) },
+                      { label: "Your decrypted", value: formatDisplayUsd(currentRoundDecryptedTotal) },
+                      { label: "Close block", value: String(selectedRoundState.closesAt || selectedPreset.closeHeight) },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="rounded-xl p-3"
+                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                        <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
+                        <p className="mt-1 text-xs font-bold text-foreground">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* â”€â”€ Helper text â”€â”€ */}
+                  {actionMode === "provide" ? (
+                    <p className="text-xs text-muted-foreground leading-relaxed rounded-xl p-3"
+                      style={{ background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.1)" }}>
+                      {LAUNCHPAD_ADAPTER_ADDRESS
+                        ? "Providing liquidity will approve USDCx and mint a private ZK launch position record."
+                        : "Set NEXT_PUBLIC_LAUNCHPAD_ADAPTER_ADDRESS to enable contributions."}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground leading-relaxed rounded-xl p-3"
+                      style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.1)" }}>
+                      {selectedWithdrawInput
+                        ? selectedPlaintextPosition
+                          ? "A matching launch position record is ready for withdrawal."
+                          : "Decrypted position will be used for withdrawal."
+                        : "Decrypt a launch position for this round before withdrawing."}
+                    </p>
+                  )}
+
+                  {/* â”€â”€ CTA buttons â”€â”€ */}
+                  <div className="flex flex-col gap-2.5">
+                    <Button
+                      className="h-13 w-full rounded-xl text-sm font-bold btn-glow"
+                      style={{
+                        height: "52px",
+                        background: actionMode === "provide"
+                          ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                          : "linear-gradient(135deg, #059669, #10b981)",
+                        boxShadow: actionMode === "provide"
+                          ? "0 8px 24px -8px rgba(99,102,241,0.6)"
+                          : "0 8px 24px -8px rgba(16,185,129,0.5)",
+                        opacity: (!connected || !amountStr || parseFloat(amountStr) <= 0 || isProcessing || (actionMode === "provide" ? !canProvide : !canWithdraw)) ? 0.5 : 1,
+                      }}
+                      onClick={actionMode === "provide" ? handleProvideLiquidity : handleWithdrawLiquidity}
+                      disabled={!connected || !amountStr || parseFloat(amountStr) <= 0 || isProcessing || (actionMode === "provide" ? !canProvide : !canWithdraw)}
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : actionMode === "provide" ? (
+                        <>
+                          <BadgeDollarSign className="mr-2 h-4 w-4" />
+                          Provide Liquidity
+                          <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
+                        </>
+                      ) : (
+                        <>
+                          <Wallet className="mr-2 h-4 w-4" />
+                          Withdraw Liquidity
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      variant="secondary"
+                      className="h-11 w-full rounded-xl text-sm font-semibold"
+                      style={{
+                        background: "rgba(99,102,241,0.08)",
+                        border: "1px solid rgba(99,102,241,0.2)",
+                        color: canActivate ? "#818cf8" : undefined,
+                      }}
+                      onClick={handleActivateRound}
+                      disabled={!connected || isProcessing || !canActivate}
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <PlayCircle className="mr-2 h-4 w-4" />
+                      )}
+                      Activate Round
+                    </Button>
+                  </div>
                 </>
               )}
-            </Button>
-          </div>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Records
-              </p>
-              <p className="mt-2 text-base font-semibold text-foreground">
-                {senderRecords.length}
-              </p>
-            </div>
-            <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Decrypted
-              </p>
-              <p className="mt-2 text-base font-semibold text-foreground">
-                {Object.keys(decryptedRecords).length}
-              </p>
-            </div>
-            <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Current round total
-              </p>
-              <p className="mt-2 text-base font-semibold text-foreground">
-                {formatDisplayUsd(currentRoundDecryptedTotal)}
-              </p>
-            </div>
-          </div>
+              {/* â”€â”€ Status message â”€â”€ */}
+              {txStatus && (
+                <div className="rounded-xl px-4 py-3 text-center text-xs font-semibold"
+                  style={{
+                    background: "rgba(99,102,241,0.08)",
+                    border: "1px solid rgba(99,102,241,0.18)",
+                    color: "#818cf8",
+                  }}>
+                  <Loader2 className="inline mr-2 h-3.5 w-3.5 animate-spin" />
+                  {txStatus}
+                </div>
+              )}
 
-          <div className="mt-4 rounded-[22px] border border-sky-500/10 bg-white/72 px-4 py-3 text-sm text-muted-foreground dark:bg-white/5">
-            {portfolioMessage}
-          </div>
+              {/* â”€â”€ Insufficient balance warning â”€â”€ */}
+              {actionMode === "provide" && atomicAmount > balanceAtomic && amountStr.trim() !== "" && (
+                <div className="rounded-xl px-4 py-3 text-xs font-semibold"
+                  style={{
+                    background: "rgba(239,68,68,0.08)",
+                    border: "1px solid rgba(239,68,68,0.2)",
+                    color: "#f87171",
+                  }}>
+                  <AlertCircle className="inline mr-1.5 h-3.5 w-3.5" />
+                  Insufficient USDCx balance for this contribution.
+                </div>
+              )}
 
-          {decryptMessage && (
-            <div className="mt-4 rounded-[22px] border border-sky-500/10 bg-white/72 px-4 py-3 text-sm text-slate-700 dark:bg-white/5 dark:text-slate-200">
-              {decryptMessage}
-            </div>
-          )}
-
-          {senderRecords.length > 0 && (
-            <div className="mt-4 space-y-3">
-              {senderRecords.map((record) => {
-                const key = getRecordKey(record);
-                const decrypted = decryptedRecords[key];
-                const matchingPreset = launchRounds.find(
-                  (round) => String(round.id) === decrypted?.roundId
-                );
-
-                return (
-                  <div
-                    key={key}
-                    className="rounded-[24px] border border-sky-500/10 bg-white/72 p-4 dark:bg-white/5"
-                  >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                          Launch position record
-                        </p>
-                        <p className="mt-2 truncate text-sm font-medium text-foreground">
-                          {record.commitment ?? "Encrypted launch position"}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Block {record.blockHeight ?? 0}
-                        </p>
-                      </div>
-
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => decryptRecord(record)}
-                        disabled={decryptingKey === key || !decrypt}
-                        className="h-10 rounded-2xl"
-                      >
-                        {decryptingKey === key ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Decrypting
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="mr-2 h-4 w-4" />
-                            {decrypted ? "Decrypt Again" : "Decrypt"}
-                          </>
-                        )}
-                      </Button>
+              {/* â”€â”€ Connect wallet prompt â”€â”€ */}
+              {!connected && (
+                <div className="rounded-xl p-4"
+                  style={{
+                    background: "rgba(99,102,241,0.06)",
+                    border: "1px solid rgba(99,102,241,0.15)",
+                  }}>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl"
+                      style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)" }}>
+                      <AlertCircle size={16} style={{ color: "#818cf8" }} />
                     </div>
-
-                    {decrypted && (
-                      <div className="mt-4 space-y-3">
-                        <div className="grid gap-3 sm:grid-cols-3">
-                          <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                              Round
-                            </p>
-                            <p className="mt-2 text-base font-semibold text-foreground">
-                              {matchingPreset?.title ?? `Round ${decrypted.roundId}`}
-                            </p>
-                          </div>
-                          <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                              Round ID
-                            </p>
-                            <p className="mt-2 text-base font-semibold text-foreground">
-                              {decrypted.roundId}
-                            </p>
-                          </div>
-                          <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                              Amount
-                            </p>
-                            <p className="mt-2 text-base font-semibold text-foreground">
-                              {formatUnits(decrypted.amount, TOKEN_DECIMALS, 4)}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                            Decrypted Content
-                          </p>
-                          <div className="mt-3 space-y-2">
-                            {decrypted.rawFields.map((field) => (
-                              <div
-                                key={field.label}
-                                className="grid gap-1 border-b border-slate-200/70 pb-2 last:border-b-0 last:pb-0 dark:border-white/10"
-                              >
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                                  {field.label}
-                                </p>
-                                <p className="break-all font-mono text-xs text-foreground">
-                                  {field.value}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    <div>
+                      <p className="text-sm font-semibold" style={{ color: "#a5b4fc" }}>
+                        Wallet required
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Connect a wallet to interact with the launchpad.
+                      </p>
+                    </div>
                   </div>
-                );
-              })}
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
-          {!connected && (
-            <div className="mt-4 rounded-[24px] border border-amber-300/25 bg-amber-300/10 p-4">
-              <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-amber-300/18 p-3 text-amber-700 dark:text-amber-200">
-                  <AlertCircle className="h-5 w-5" />
+          {/* â”€â”€ Private Records Panel â”€â”€ */}
+          <div className="surface-card">
+            <div className="px-6 pt-5 pb-4"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Lock size={15} style={{ color: "#818cf8" }} />
+                  <h3 className="font-display text-base font-bold tracking-tight">
+                    Private Records
+                  </h3>
                 </div>
-                <div>
-                  <p className="font-semibold text-amber-900 dark:text-amber-100">
-                    Wallet connection required
-                  </p>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={loadSenderRecords}
+                  disabled={isRefreshingRecords}
+                  className="h-8 rounded-xl text-xs font-semibold gap-1.5"
+                  style={{ background: "rgba(99,102,241,0.08)", borderColor: "rgba(99,102,241,0.2)" }}
+                >
+                  {isRefreshingRecords ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3" />
+                  )}
+                  Load Records
+                </Button>
+              </div>
 
-                </div>
+              {/* Record counters */}
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {[
+                  { label: "Encrypted", value: senderRecords.length },
+                  { label: "Decrypted", value: Object.keys(decryptedRecords).length },
+                  { label: "Round total", value: formatDisplayUsd(currentRoundDecryptedTotal) },
+                ].map(({ label, value }) => (
+                  <div key={label} className="rounded-xl p-2.5 text-center"
+                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
+                    <p className="mt-1 text-sm font-bold text-foreground">{value}</p>
+                  </div>
+                ))}
               </div>
             </div>
-          )}
-        </div>        </div>
-    </section>
+
+            <div className="px-6 py-4 space-y-3">
+              {/* Status message */}
+              <p className="text-xs text-muted-foreground rounded-xl p-3"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                {portfolioMessage}
+              </p>
+
+              {decryptMessage && (
+                <p className="text-xs rounded-xl p-3"
+                  style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.14)", color: "#a5b4fc" }}>
+                  {decryptMessage}
+                </p>
+              )}
+
+              {/* Record list */}
+              {senderRecords.length > 0 && (
+                <div className="space-y-2.5">
+                  {senderRecords.map((record) => {
+                    const key = getRecordKey(record);
+                    const decrypted = decryptedRecords[key];
+                    const matchingPreset = launchRounds.find(
+                      (round) => String(round.id) === decrypted?.roundId
+                    );
+
+                    return (
+                      <div key={key} className="rounded-xl overflow-hidden"
+                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                        {/* Record header */}
+                        <div className="flex items-center justify-between gap-3 p-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="h-1.5 w-1.5 rounded-full"
+                                style={{ background: "#10b981", boxShadow: "0 0 6px #10b981" }} />
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                Launch position
+                              </p>
+                            </div>
+                            <p className="truncate text-xs font-mono text-foreground/70">
+                              {record.commitment
+                                ? `${record.commitment.slice(0, 12)}...${record.commitment.slice(-6)}`
+                                : "Encrypted position"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">
+                              Block #{record.blockHeight ?? 0}
+                            </p>
+                          </div>
+
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => decryptRecord(record)}
+                            disabled={decryptingKey === key || !decrypt}
+                            className="h-8 rounded-lg text-xs font-semibold gap-1.5 flex-shrink-0"
+                            style={{
+                              background: "rgba(99,102,241,0.1)",
+                              borderColor: "rgba(99,102,241,0.2)",
+                              color: "#a5b4fc",
+                            }}
+                          >
+                            {decryptingKey === key ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Eye className="h-3 w-3" />
+                            )}
+                            {decrypted ? "Re-decrypt" : "Decrypt"}
+                          </Button>
+                        </div>
+
+                        {/* Decrypted content */}
+                        {decrypted && (
+                          <div className="px-4 pb-4 pt-2 space-y-2.5"
+                            style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="rounded-lg p-2.5"
+                                style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.12)" }}>
+                                <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Round ID</p>
+                                <p className="mt-1 text-xs font-bold" style={{ color: "#a5b4fc" }}>{decrypted.roundId}</p>
+                              </div>
+                              <div className="rounded-lg p-2.5 col-span-2"
+                                style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.12)" }}>
+                                <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Amount</p>
+                                <p className="mt-1 text-xs font-bold" style={{ color: "#34d399" }}>
+                                  {formatUnits(decrypted.amount, TOKEN_DECIMALS, 4)} USDCx
+                                </p>
+                              </div>
+                            </div>
+
+                            {matchingPreset && (
+                              <p className="text-[11px] text-muted-foreground rounded-lg p-2.5 leading-relaxed"
+                                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                                ðŸŽ¯ {matchingPreset.title}
+                              </p>
+                            )}
+
+                            {/* Raw fields */}
+                            <details className="group">
+                              <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors select-none">
+                                Raw fields â–¸
+                              </summary>
+                              <div className="mt-2 space-y-1.5 rounded-lg p-3 font-mono text-[10px]"
+                                style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                                {decrypted.rawFields.map((field) => (
+                                  <div key={field.label} className="flex gap-2">
+                                    <span className="text-muted-foreground shrink-0">{field.label}:</span>
+                                    <span className="break-all text-foreground/70">{field.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

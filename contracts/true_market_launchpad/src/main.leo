@@ -1,7 +1,7 @@
 import test_usdcx_stablecoin.aleo;
-import true_prediction_market_v3.aleo;
+import true_prediction_market_v4.aleo;
 
-program true_market_launchpad_v2.aleo {
+program true_market_launchpad_v3.aleo {
     struct LaunchRound {
         creator: address,
         closes_at: u32,
@@ -167,6 +167,7 @@ program true_market_launchpad_v2.aleo {
         public market_id: field,
         public market_closes_at: u32,
         public initial_liquidity: u64,
+        public bond_amount: u64,
         public market_adapter: address
     ) -> Final {
         let funding: Final =
@@ -174,11 +175,12 @@ program true_market_launchpad_v2.aleo {
         
         let caller: address = self.caller;
         let create_market: Final =
-            true_prediction_market_v3.aleo::create_market_from_launchpad(
+            true_prediction_market_v4.aleo::create_market_from_launchpad(
                 market_id,
                 caller,
                 market_closes_at,
-                initial_liquidity
+                initial_liquidity,
+                bond_amount
             );
 
         return final {

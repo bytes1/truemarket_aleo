@@ -1,7 +1,7 @@
 import test_usdcx_stablecoin.aleo;
 import true_optimistic_oracle_v3.aleo;
 
-program true_prediction_market_v3.aleo {
+program true_prediction_market_v4.aleo {
     struct Market {
         creator: address,
         closes_at: u32,
@@ -451,7 +451,7 @@ fn compute_buy_quote(
     pool_shares_b: u64,
     outcome: u8,
     amount: u64
-) -> true_prediction_market_v3.aleo::BuyQuote {
+) -> true_prediction_market_v4.aleo::BuyQuote {
     assert(pool_shares_a > 0u64);
     assert(pool_shares_b > 0u64);
     assert(outcome <= 1u8);
@@ -467,7 +467,7 @@ fn compute_buy_quote(
     let new_b_if_1: u64 = (k / (new_a_if_1 as u128)) as u64;
     let shares_bought_if_1: u64 = pool_shares_b - new_b_if_1;
 
-    let quote: true_prediction_market_v3.aleo::BuyQuote = true_prediction_market_v3.aleo::BuyQuote {
+    let quote: true_prediction_market_v4.aleo::BuyQuote = true_prediction_market_v4.aleo::BuyQuote {
         next_shares_a: outcome == 0u8 ? new_a_if_0 : new_a_if_1,
         next_shares_b: outcome == 0u8 ? new_b_if_0 : new_b_if_1,
         shares_out: outcome == 0u8 ? shares_bought_if_0 : shares_bought_if_1,
@@ -481,7 +481,7 @@ fn compute_sell_quote(
     pool_shares_b: u64,
     outcome: u8,
     shares_to_sell: u64
-) -> true_prediction_market_v3.aleo::SellQuote {
+) -> true_prediction_market_v4.aleo::SellQuote {
     assert(pool_shares_a > 0u64);
     assert(pool_shares_b > 0u64);
     assert(outcome <= 1u8);
@@ -497,7 +497,7 @@ fn compute_sell_quote(
     let new_a_if_1: u64 = (k / (new_b_if_1 as u128)) as u64;
     let collateral_out_if_1: u64 = pool_shares_a - new_a_if_1;
 
-    let quote: true_prediction_market_v3.aleo::SellQuote = true_prediction_market_v3.aleo::SellQuote {
+    let quote: true_prediction_market_v4.aleo::SellQuote = true_prediction_market_v4.aleo::SellQuote {
         next_shares_a: outcome == 0u8 ? new_a_if_0 : new_a_if_1,
         next_shares_b: outcome == 0u8 ? new_b_if_0 : new_b_if_1,
         collateral_out: outcome == 0u8 ? collateral_out_if_0 : collateral_out_if_1,

@@ -1,5 +1,5 @@
 {
-  "program": "true_market_launchpad_v2.aleo",
+  "program": "true_market_launchpad_v3.aleo",
   "version": "0.1.0",
   "description": "Standalone community liquidity launchpad for upcoming True Markets rounds",
   "license": "MIT",
@@ -11,7 +11,7 @@
       "network": "testnet"
     },
     {
-      "name": "true_prediction_market_v3.aleo",
+      "name": "true_prediction_market_v4.aleo",
       "location": "network",
       "network": "testnet"
     }

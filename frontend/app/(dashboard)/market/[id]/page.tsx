@@ -9,7 +9,8 @@ import { TradeCard } from "@/components/market/TradeCard";
 import { getStoredMarkets, mergeMarkets } from "@/lib/custom-markets";
 import { OraclePanel } from "@/components/market/OraclePanel";
 import { data as allMarkets } from "@/lib/data";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Scale, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 function getMarketById(id: string, storedMarkets = getStoredMarkets()) {
   return mergeMarkets(allMarkets, storedMarkets).find(
@@ -55,10 +56,13 @@ function parseMarketData(
   }
 }
 
+type RightPanelTab = "trade" | "oracle";
+
 export default function MarketPage() {
   const params = useParams();
   const id = params?.id as string;
   const [storedMarkets, setStoredMarkets] = useState(() => getStoredMarkets());
+  const [rightTab, setRightTab] = useState<RightPanelTab>("trade");
 
   useEffect(() => {
     setStoredMarkets(getStoredMarkets());
@@ -79,29 +83,64 @@ export default function MarketPage() {
     market.sourceLink
   );
 
+  const tabs: Array<{ id: RightPanelTab; label: string; icon: typeof TrendingUp }> = [
+    { id: "trade", label: "Trade", icon: TrendingUp },
+    { id: "oracle", label: "Oracle", icon: Scale },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 animate-fade-up">
+      {/* Market header hero */}
       <MarketHeader market={market} details={details} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_390px]">
-        <div className="space-y-6">
+      {/* Two-column grid */}
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+        {/* Left column: chart + rules */}
+        <div className="space-y-5">
           <MarketChart market={market} />
           <MarketRules details={details} />
         </div>
 
-        <div className="space-y-6">
-          <Tabs defaultValue="trade" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100 dark:bg-[#1C1C1E] p-1 rounded-xl">
-              <TabsTrigger value="trade" className="rounded-lg font-bold data-[state=active]:bg-white dark:data-[state=active]:bg-[#2c2c2e]">Trade</TabsTrigger>
-              <TabsTrigger value="oracle" className="rounded-lg font-bold data-[state=active]:bg-white dark:data-[state=active]:bg-[#2c2c2e]">Oracle</TabsTrigger>
-            </TabsList>
-            <TabsContent value="trade" className="m-0 border-none outline-none">
-              <TradeCard market={market} />
-            </TabsContent>
-            <TabsContent value="oracle" className="m-0 border-none outline-none">
-              <OraclePanel market={market} />
-            </TabsContent>
-          </Tabs>
+        {/* Right column: trade/oracle panel */}
+        <div className="space-y-4">
+          {/* Tab switcher */}
+          <div
+            className="flex items-center gap-1 rounded-2xl p-1"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+            }}
+          >
+            {tabs.map(({ id: tabId, label, icon: Icon }) => (
+              <button
+                key={tabId}
+                type="button"
+                onClick={() => setRightTab(tabId)}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200"
+                )}
+                style={
+                  rightTab === tabId
+                    ? {
+                      background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                      color: "#fff",
+                      boxShadow: "0 4px 16px -4px rgba(99,102,241,0.6)",
+                    }
+                    : { color: "#94a3b8" }
+                }
+              >
+                <Icon size={14} />
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Panel content */}
+          {rightTab === "trade" ? (
+            <TradeCard market={market} />
+          ) : (
+            <OraclePanel market={market} />
+          )}
         </div>
       </div>
     </div>

@@ -22,7 +22,7 @@ import {
 import { data as allMarkets, type Market } from "@/lib/data";
 
 const MARKET_PROGRAM_ID =
-  process.env.NEXT_PUBLIC_MARKET_PROGRAM_ID ?? "true_prediction_market_v3.aleo";
+  process.env.NEXT_PUBLIC_MARKET_PROGRAM_ID ?? "true_prediction_market_v4.aleo";
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
 const MARKET_SPENDER_ADDRESS =
   process.env.NEXT_PUBLIC_MARKET_SPENDER_ADDRESS ??

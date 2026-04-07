@@ -7,7 +7,7 @@ import type { Market } from "@/lib/data";
 
 const ORACLE_PROGRAM_ID = "true_optimistic_oracle_v3.aleo";
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
-const MARKET_PROGRAM_ID = "true_prediction_market_v3.aleo";
+const MARKET_PROGRAM_ID = "true_prediction_market_v4.aleo";
 
 type OracleState = "OPEN" | "PROPOSED" | "DISPUTED" | "RESOLVED";
 

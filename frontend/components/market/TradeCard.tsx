@@ -17,7 +17,7 @@ import { type Market } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 const MARKET_PROGRAM_ID =
-  process.env.NEXT_PUBLIC_MARKET_PROGRAM_ID ?? "true_prediction_market_v3.aleo";
+  process.env.NEXT_PUBLIC_MARKET_PROGRAM_ID ?? "true_prediction_market_v4.aleo";
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
 const MARKET_SPENDER_ADDRESS = "aleo107rx38hdjmjyanhhurftl9tapvketn4vv5v5l3rj7qjrplajhcqs6xct67";
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";
@@ -926,19 +926,33 @@ export const TradeCard = ({ market }: { market: Market }) => {
   }
 
   return (
-    <section className="surface-card sticky top-6 overflow-hidden p-0">
-      <div className="border-b border-slate-200/70 bg-white p-5 dark:border-white/10 dark:bg-slate-950/60">
-        <div className="flex items-start justify-between gap-4">
+    <section className="surface-card sticky top-6 overflow-hidden" style={{ padding: 0 }}>
+      {/* Card header */}
+      <div
+        className="relative overflow-hidden px-6 pt-5 pb-4"
+        style={{
+          background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.06))",
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        <div className="absolute right-4 top-4 opacity-[0.07]">
+          <Wallet size={72} />
+        </div>
+        <div className="relative flex items-center justify-between gap-3">
           <div>
-            <h2 className="font-display text-3xl font-bold tracking-tight">
-              Trade
-            </h2>
+            <h2 className="font-display text-xl font-bold tracking-tight">Trade</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Private ZK prediction market</p>
           </div>
-
           {connected && (
-            <div className="rounded-full border border-slate-200/80 bg-white px-3 py-2 text-sm font-medium text-foreground dark:border-white/10 dark:bg-white/5">
-              <span className="inline-flex items-center gap-2">
-                <Wallet className="h-4 w-4" />
+            <div
+              className="flex items-center gap-2 rounded-xl px-3 py-2"
+              style={{
+                background: "rgba(99,102,241,0.1)",
+                border: "1px solid rgba(99,102,241,0.2)",
+              }}
+            >
+              <Wallet size={13} style={{ color: "#818cf8" }} />
+              <span className="text-xs font-semibold" style={{ color: "#818cf8" }}>
                 {balanceValue} USDCx
               </span>
             </div>
@@ -946,66 +960,87 @@ export const TradeCard = ({ market }: { market: Market }) => {
         </div>
       </div>
 
-      <div className="space-y-5 p-5">
-        <div className="rounded-[24px] border border-amber-300/25 bg-amber-300/10 p-4 text-sm text-amber-950 dark:text-amber-100">
-          <div className="flex items-start gap-3">
-            <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
-            <div>
-              <p className="font-semibold">Privacy boundary</p>
-              <p className="mt-1 leading-6 text-amber-900/80 dark:text-amber-100/80">
-                Your position record is private, but the approval and token transfer used to
-                fund or redeem it are still public on-chain.
-              </p>
-            </div>
+      <div className="space-y-4 p-5">
+        {/* Privacy notice */}
+        <div
+          className="flex items-start gap-3 rounded-xl p-3.5"
+          style={{
+            background: "rgba(245,158,11,0.07)",
+            border: "1px solid rgba(245,158,11,0.18)",
+          }}
+        >
+          <ShieldAlert size={16} className="mt-0.5 flex-shrink-0" style={{ color: "#fbbf24" }} />
+          <div>
+            <p className="text-xs font-semibold" style={{ color: "#fbbf24" }}>
+              Privacy boundary
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Your position record is private, but the approval and token transfer used to fund or redeem it are still public on-chain.
+            </p>
           </div>
         </div>
 
-        <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-lg">
-          <button
-            type="button"
-            onClick={() => setTradeMode("buy")}
-            className={cn(
-              "flex-1 rounded-md px-4 py-1.5 text-sm font-semibold transition-all duration-200 text-center",
-              tradeMode === "buy"
-                ? "bg-white text-slate-900 shadow-sm dark:bg-[#1C1C1E] dark:text-white"
-                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            )}
-          >
-            Buy
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTradeMode("sell")}
-            className={cn(
-              "flex-1 rounded-md px-4 py-1.5 text-sm font-semibold transition-all duration-200 text-center",
-              tradeMode === "sell"
-                ? "bg-white text-slate-900 shadow-sm dark:bg-[#1C1C1E] dark:text-white"
-                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            )}
-          >
-            Sell
-          </button>
+        {/* Buy / Sell toggle */}
+        <div
+          className="grid grid-cols-2 rounded-xl p-1 gap-1"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          {(["buy", "sell"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setTradeMode(mode)}
+              className="rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 capitalize"
+              style={
+                tradeMode === mode
+                  ? {
+                    background:
+                      mode === "buy"
+                        ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                        : "linear-gradient(135deg, #059669, #10b981)",
+                    color: "#fff",
+                    boxShadow:
+                      mode === "buy"
+                        ? "0 4px 16px -4px rgba(99,102,241,0.6)"
+                        : "0 4px 16px -4px rgba(16,185,129,0.5)",
+                  }
+                  : { color: "#94a3b8" }
+              }
+            >
+              {mode}
+            </button>
+          ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mt-2">
+        {/* Outcome selector */}
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => setOutcome("yes")}
-            className={cn(
-              "rounded border p-3 flex flex-col justify-between transition-all duration-200",
+            className="relative flex flex-col gap-1 overflow-hidden rounded-xl p-4 text-left transition-all duration-200"
+            style={
               outcome === "yes"
-                ? "border-blue-500 bg-blue-50/50 dark:border-[#0041FF] dark:bg-[#0041FF]/10"
-                : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-            )}
+                ? {
+                  background: "rgba(99,102,241,0.12)",
+                  border: "1px solid rgba(99,102,241,0.35)",
+                  boxShadow: "0 0 20px -6px rgba(99,102,241,0.4)",
+                }
+                : {
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                }
+            }
           >
-            <span className={cn(
-              "text-sm font-semibold",
-              outcome === "yes" ? "text-blue-600 dark:text-[#0041FF]" : "text-slate-600 dark:text-slate-400"
-            )}>
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest"
+              style={{ color: outcome === "yes" ? "#818cf8" : "#64748b" }}
+            >
               {market.outcome_a}
             </span>
-            <span className="mt-1 font-mono text-xl font-bold text-slate-900 dark:text-slate-100">
+            <span className="font-mono text-xl font-bold" style={{ color: outcome === "yes" ? "#a5b4fc" : "#94a3b8" }}>
               ${tradeDetails.yesPriceDisplay}
             </span>
           </button>
@@ -1013,228 +1048,275 @@ export const TradeCard = ({ market }: { market: Market }) => {
           <button
             type="button"
             onClick={() => setOutcome("no")}
-            className={cn(
-              "rounded border p-3 flex flex-col justify-between transition-all duration-200",
+            className="relative flex flex-col gap-1 overflow-hidden rounded-xl p-4 text-left transition-all duration-200"
+            style={
               outcome === "no"
-                ? "border-red-500 bg-red-50/50 dark:border-[#FF0054] dark:bg-[#FF0054]/10"
-                : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-            )}
+                ? {
+                  background: "rgba(6,182,212,0.1)",
+                  border: "1px solid rgba(6,182,212,0.35)",
+                  boxShadow: "0 0 20px -6px rgba(6,182,212,0.35)",
+                }
+                : {
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                }
+            }
           >
-            <span className={cn(
-              "text-sm font-semibold",
-              outcome === "no" ? "text-red-500 dark:text-[#FF0054]" : "text-slate-600 dark:text-slate-400"
-            )}>
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest"
+              style={{ color: outcome === "no" ? "#22d3ee" : "#64748b" }}
+            >
               {market.outcome_b}
             </span>
-            <span className="mt-1 font-mono text-xl font-bold text-slate-900 dark:text-slate-100">
+            <span className="font-mono text-xl font-bold" style={{ color: outcome === "no" ? "#67e8f9" : "#94a3b8" }}>
               ${tradeDetails.noPriceDisplay}
             </span>
           </button>
         </div>
 
-        <div className="mt-2 rounded border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#1C1C1E]">
-          <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100 dark:border-white/5">
-            <label className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              {tradeMode === "buy" ? "Amount" : "Shares"}
-            </label>
-            <span className="text-sm font-semibold text-slate-400 dark:text-slate-500">
-              {tradeMode === "buy" ? "USDCx" : "Shares"}
-            </span>
-          </div>
+        {/* Amount input */}
+        <div>
+          <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
+            {tradeMode === "buy" ? "Amount" : "Shares to sell"}
+          </label>
           <div className="relative">
             <Input
               type="number"
               value={amountStr}
               onChange={(event) => setAmountStr(event.target.value)}
               placeholder="0.00"
-              className="h-10 border-0 bg-transparent text-xl font-mono shadow-none focus-visible:ring-0 p-0 text-slate-900 dark:text-white"
+              className="h-14 rounded-xl pr-16 text-xl font-bold"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(99,102,241,0.2)",
+                fontSize: "1.2rem",
+                boxShadow: "none",
+              }}
               disabled={isProcessing}
             />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground pointer-events-none">
+              {tradeMode === "buy" ? "USD" : "Shares"}
+            </span>
           </div>
           {tradeMode === "sell" && (
-            <div className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              <span>
-                Available:{" "}
-                <span className="font-semibold text-slate-900 dark:text-white">
-                  {formatUnits(selectedSellCapacity, TOKEN_DECIMALS, 4)}
-                </span>
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Available:{" "}
+              <span className="font-semibold text-foreground">
+                {formatUnits(selectedSellCapacity, TOKEN_DECIMALS, 4)}
               </span>
-            </div>
+            </p>
           )}
         </div>
 
-        {connected ? (
-          <div className="rounded-[28px] border border-slate-200/70 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/5">
-            <div className="flex items-start justify-between gap-3">
+        {/* Quote grid */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: tradeMode === "buy" ? "You receive" : "You receive", value: tradeDetails.estPrimaryDisplay },
+            { label: "Avg price", value: `$${tradeDetails.avgFillPriceDisplay}` },
+            { label: "Minimum", value: tradeDetails.minPrimaryDisplay },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              className="rounded-xl p-3 text-center"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <p className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">
+                {label}
+              </p>
+              <p className="mt-1.5 text-sm font-bold text-foreground">{value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Wallet not connected */}
+        {!connected && (
+          <div
+            className="flex items-center gap-3 rounded-xl p-4"
+            style={{
+              background: "rgba(99,102,241,0.06)",
+              border: "1px solid rgba(99,102,241,0.15)",
+            }}
+          >
+            <div
+              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl"
+              style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)" }}
+            >
+              <AlertCircle size={16} style={{ color: "#818cf8" }} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: "#a5b4fc" }}>
+                Wallet required
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Connect an Aleo wallet to load and decrypt your private records.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Records panel (when connected) */}
+        {connected && (
+          <div
+            className="space-y-3 rounded-2xl p-4"
+            style={{
+              background: "rgba(255,255,255,0.025)",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">Records</p>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  Private Records
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
                   {portfolioMessage}
                 </p>
               </div>
               <Button
                 type="button"
                 variant="secondary"
+                size="sm"
                 onClick={loadSenderRecords}
                 disabled={isRefreshingRecords}
-                className="h-11 rounded-2xl"
+                className="h-8 rounded-xl text-xs font-semibold gap-1.5"
+                style={{ background: "rgba(99,102,241,0.1)", borderColor: "rgba(99,102,241,0.2)" }}
               >
                 {isRefreshingRecords ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading
-                  </>
+                  <Loader2 className="h-3 w-3 animate-spin" />
                 ) : (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Load Records
-                  </>
+                  <RefreshCw className="h-3 w-3" />
                 )}
+                Load
               </Button>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Records
-                </p>
-                <p className="mt-2 text-base font-semibold text-foreground">
-                  {senderRecords.length}
-                </p>
-              </div>
-              <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Decrypted
-                </p>
-                <p className="mt-2 text-base font-semibold text-foreground">
-                  {Object.keys(decryptedRecords).length}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {market.outcome_a} Holdings
-                </p>
-                <p className="mt-2 text-base font-semibold text-foreground">
-                  {formatUnits(currentMarketHoldings.yes, TOKEN_DECIMALS, 4)}
-                </p>
-              </div>
-              <div className="rounded-[22px] border border-sky-500/10 bg-white/72 p-3 dark:bg-white/5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {market.outcome_b} Holdings
-                </p>
-                <p className="mt-2 text-base font-semibold text-foreground">
-                  {formatUnits(currentMarketHoldings.no, TOKEN_DECIMALS, 4)}
-                </p>
-              </div>
+            {/* Record counters row */}
+            <div className="grid grid-cols-4 gap-1.5">
+              {[
+                { label: "Records", value: senderRecords.length },
+                { label: "Decrypted", value: Object.keys(decryptedRecords).length },
+                { label: market.outcome_a, value: formatUnits(currentMarketHoldings.yes, TOKEN_DECIMALS, 2) },
+                { label: market.outcome_b, value: formatUnits(currentMarketHoldings.no, TOKEN_DECIMALS, 2) },
+              ].map(({ label, value }) => (
+                <div
+                  key={label}
+                  className="rounded-xl p-2 text-center"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
+                >
+                  <p className="text-[8px] font-semibold uppercase tracking-widest text-muted-foreground truncate">
+                    {label}
+                  </p>
+                  <p className="mt-1 text-xs font-bold text-foreground">{value}</p>
+                </div>
+              ))}
             </div>
 
             {decryptMessage && (
-              <div className="mt-4 rounded-[20px] border border-sky-500/15 bg-white/72 px-4 py-3 text-sm text-slate-700 dark:bg-white/5 dark:text-slate-200">
+              <p
+                className="rounded-xl px-3 py-2.5 text-xs"
+                style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.14)", color: "#a5b4fc" }}
+              >
                 {decryptMessage}
-              </div>
+              </p>
             )}
 
+            {/* Encrypted record list */}
             {senderRecords.length > 0 && (
-              <div className="mt-4 space-y-3">
+              <div className="space-y-2">
                 {senderRecords.map((record) => {
                   const key = getRecordKey(record);
                   const decrypted = decryptedRecords[key];
-
                   return (
                     <div
                       key={key}
-                      className="rounded-[24px] border border-sky-500/10 bg-white/72 p-4 dark:bg-white/5"
+                      className="overflow-hidden rounded-xl"
+                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
                     >
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="min-w-0">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                            Record
-                          </p>
-                          <p className="mt-2 truncate text-sm font-medium text-foreground">
-                            {record.commitment ?? "Encrypted position"}
-                          </p>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            Block {record.blockHeight ?? 0}
+                      <div className="flex items-center justify-between gap-3 p-3.5">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-1.5 w-1.5 rounded-full" style={{ background: "#10b981", boxShadow: "0 0 6px #10b981" }} />
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                              Position Record
+                            </p>
+                          </div>
+                          <p className="mt-1 truncate text-xs font-mono text-foreground/60">
+                            {record.commitment
+                              ? `${record.commitment.slice(0, 10)}â€¦${record.commitment.slice(-6)}`
+                              : "Encrypted"}
                           </p>
                         </div>
-
                         <Button
                           type="button"
                           variant="secondary"
+                          size="sm"
                           onClick={() => decryptRecord(record)}
                           disabled={decryptingKey === key || !decrypt}
-                          className="h-10 rounded-2xl"
+                          className="h-7 rounded-lg text-[10px] font-semibold gap-1 flex-shrink-0"
+                          style={{ background: "rgba(99,102,241,0.1)", borderColor: "rgba(99,102,241,0.2)", color: "#a5b4fc" }}
                         >
                           {decryptingKey === key ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />
-                              Generating ZK Proof...
-                            </>
+                            <Loader2 className="h-2.5 w-2.5 animate-spin" />
                           ) : (
-                            <>
-                              <Eye className="mr-2 h-4 w-4 text-primary" />
-                              Local ZK Decrypt
-                            </>
+                            <Eye className="h-2.5 w-2.5" />
                           )}
+                          {decrypted ? "Re-decrypt" : "Decrypt"}
                         </Button>
                       </div>
 
                       {decrypted && (
-                        <div className="mt-4 space-y-3">
-                          <div className="grid gap-3 sm:grid-cols-3">
-                            <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
-                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                                Market ID
-                              </p>
-                              <p className="mt-2 text-base font-semibold text-foreground">
-                                {decrypted.marketId}
-                              </p>
-                            </div>
-                            <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
-                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                                Outcome
-                              </p>
-                              <p className="mt-2 text-base font-semibold text-foreground">
-                                {decrypted.outcomeValue === 0
-                                  ? market.outcome_a
-                                  : decrypted.outcomeValue === 1
-                                    ? market.outcome_b
-                                    : "Unknown"}
-                              </p>
-                            </div>
-                            <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
-                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                                Shares
-                              </p>
-                              <p className="mt-2 text-base font-semibold text-foreground">
-                                {formatUnits(decrypted.shares, TOKEN_DECIMALS, 4)}
-                              </p>
-                            </div>
+                        <div
+                          className="px-3.5 pb-3.5 pt-2 space-y-2"
+                          style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+                        >
+                          <div className="grid grid-cols-3 gap-1.5">
+                            {[
+                              { label: "Market ID", value: decrypted.marketId },
+                              {
+                                label: "Outcome",
+                                value:
+                                  decrypted.outcomeValue === 0
+                                    ? market.outcome_a
+                                    : decrypted.outcomeValue === 1
+                                      ? market.outcome_b
+                                      : "Unknown",
+                              },
+                              { label: "Shares", value: formatUnits(decrypted.shares, TOKEN_DECIMALS, 4) },
+                            ].map(({ label, value }) => (
+                              <div
+                                key={label}
+                                className="rounded-lg p-2"
+                                style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.12)" }}
+                              >
+                                <p className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground">
+                                  {label}
+                                </p>
+                                <p className="mt-0.5 text-[11px] font-bold truncate" style={{ color: "#a5b4fc" }}>
+                                  {value}
+                                </p>
+                              </div>
+                            ))}
                           </div>
 
-                          <div className="rounded-[20px] border border-slate-200/70 bg-white/85 p-3 dark:border-white/10 dark:bg-slate-950/25">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                              Details
-                            </p>
-                            <div className="mt-3 space-y-2">
+                          <details>
+                            <summary className="cursor-pointer text-[9px] font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors select-none">
+                              Raw fields â–¸
+                            </summary>
+                            <div
+                              className="mt-1.5 rounded-lg p-2.5 font-mono text-[9px] space-y-1"
+                              style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.04)" }}
+                            >
                               {decrypted.rawFields.map((field) => (
-                                <div
-                                  key={field.label}
-                                  className="grid gap-1 border-b border-slate-200/70 pb-2 last:border-b-0 last:pb-0 dark:border-white/10"
-                                >
-                                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                                    {field.label}
-                                  </p>
-                                  <p className="break-all font-mono text-xs text-foreground">
-                                    {field.value}
-                                  </p>
+                                <div key={field.label} className="flex gap-1.5">
+                                  <span className="text-muted-foreground shrink-0">{field.label}:</span>
+                                  <span className="break-all text-foreground/60">{field.value}</span>
                                 </div>
                               ))}
                             </div>
-                          </div>
+                          </details>
                         </div>
                       )}
                     </div>
@@ -1243,54 +1325,21 @@ export const TradeCard = ({ market }: { market: Market }) => {
               </div>
             )}
           </div>
-        ) : (
-          <div className="rounded-[28px] border border-amber-300/25 bg-amber-300/10 p-4">
-            <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-amber-300/18 p-3 text-amber-700 dark:text-amber-200">
-                <AlertCircle className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="font-semibold text-amber-900 dark:text-amber-100">
-                  Wallet connection required
-                </p>
-                <p className="mt-2 text-sm leading-6 text-amber-900/75 dark:text-amber-100/80">
-                  Connect an Aleo wallet from the header to load and decrypt
-                  your private records.
-                </p>
-              </div>
-            </div>
-          </div>
         )}
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[24px] border border-slate-200/70 bg-white/86 p-4 dark:border-white/10 dark:bg-white/5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {tradeMode === "buy" ? "You receive" : "You receive"}
-            </p>
-            <p className="mt-2 text-lg font-semibold text-foreground">
-              {tradeDetails.estPrimaryDisplay}
-            </p>
-          </div>
-          <div className="rounded-[24px] border border-slate-200/70 bg-white/86 p-4 dark:border-white/10 dark:bg-white/5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Average price
-            </p>
-            <p className="mt-2 text-lg font-semibold text-foreground">
-              ${tradeDetails.avgFillPriceDisplay}
-            </p>
-          </div>
-          <div className="rounded-[24px] border border-slate-200/70 bg-white/86 p-4 dark:border-white/10 dark:bg-white/5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {tradeMode === "buy" ? "Minimum" : "Minimum"}
-            </p>
-            <p className="mt-2 text-lg font-semibold text-foreground">
-              {tradeDetails.minPrimaryDisplay}
-            </p>
-          </div>
-        </div>
-
+        {/* CTA button */}
         <Button
-          className="h-14 w-full rounded-2xl text-base font-semibold shadow-[0_0_20px_rgba(var(--primary),0.25)] bg-primary text-primary-foreground hover:bg-primary/90 transition-all border border-primary/50"
+          className="h-14 w-full rounded-xl text-base font-bold btn-glow"
+          style={{
+            background:
+              tradeMode === "buy"
+                ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                : "linear-gradient(135deg, #059669, #10b981)",
+            boxShadow:
+              tradeMode === "buy"
+                ? "0 8px 24px -8px rgba(99,102,241,0.6)"
+                : "0 8px 24px -8px rgba(16,185,129,0.5)",
+          }}
           onClick={onAction}
           disabled={
             !connected ||
@@ -1314,19 +1363,35 @@ export const TradeCard = ({ market }: { market: Market }) => {
         </Button>
 
         {txStatus && (
-          <div className="rounded-2xl border border-sky-500/15 bg-sky-500/8 px-4 py-3 text-center text-sm font-medium text-sky-700 dark:text-sky-300">
+          <div
+            className="rounded-xl px-4 py-3 text-center text-xs font-semibold"
+            style={{
+              background: "rgba(99,102,241,0.08)",
+              border: "1px solid rgba(99,102,241,0.18)",
+              color: "#818cf8",
+            }}
+          >
+            <Loader2 className="inline mr-2 h-3.5 w-3.5 animate-spin" />
             {txStatus}
           </div>
         )}
 
-        {tradeMode === "buy" && tradeDetails.atomicAmount > balanceAtomic && (
-          <div className="rounded-2xl border border-amber-300/25 bg-amber-300/10 px-4 py-3 text-center text-sm font-medium text-amber-900 dark:text-amber-100">
+        {tradeMode === "buy" && tradeDetails.atomicAmount > balanceAtomic && amountStr && (
+          <div
+            className="rounded-xl px-4 py-3 text-center text-xs font-semibold"
+            style={{
+              background: "rgba(239,68,68,0.08)",
+              border: "1px solid rgba(239,68,68,0.2)",
+              color: "#f87171",
+            }}
+          >
             Insufficient USDCx balance for this buy amount.
           </div>
         )}
       </div>
 
-      <div className="border-t border-white/45 p-5 dark:border-white/10">
+      {/* Timeline footer */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }} className="px-5 py-4">
         <TimelineCard market={market} />
       </div>
     </section>

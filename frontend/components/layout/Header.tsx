@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, SunMedium } from "lucide-react";
+import { Moon, SunMedium, SearchIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -10,14 +10,17 @@ import { Button } from "@/components/ui/button";
 const pageTitles: Array<{
   match: (pathname: string) => boolean;
   title: string;
+  subtitle?: string;
 }> = [
-  { match: (pathname) => pathname.startsWith("/market/"), title: "Market" },
-  { match: (pathname) => pathname === "/market", title: "Markets" },
-  { match: (pathname) => pathname === "/p2p", title: "P2P Bets" },
-  { match: (pathname) => pathname === "/launchpad", title: "Launchpad" },
-  { match: (pathname) => pathname === "/leaderboard", title: "Leaderboard" },
-  { match: (pathname) => pathname === "/faucet", title: "Faucet" },
-  { match: (pathname) => pathname === "/settings", title: "Settings" },
+  { match: (p) => p.startsWith("/market/"), title: "Market Detail", subtitle: "Active prediction market" },
+  { match: (p) => p === "/market", title: "Markets", subtitle: "Explore prediction markets" },
+  { match: (p) => p === "/create", title: "Create Market", subtitle: "Launch a new prediction" },
+  { match: (p) => p === "/p2p", title: "P2P Bets", subtitle: "Private peer-to-peer trading" },
+  { match: (p) => p === "/launchpad", title: "Launchpad", subtitle: "Bootstrap market liquidity" },
+  { match: (p) => p === "/oracle", title: "Oracle", subtitle: "Optimistic resolution layer" },
+  { match: (p) => p === "/leaderboard", title: "Leaderboard", subtitle: "Top traders & forecasters" },
+  { match: (p) => p === "/faucet", title: "Faucet", subtitle: "Get testnet USDCx tokens" },
+  { match: (p) => p === "/settings", title: "Settings", subtitle: "Preferences & configuration" },
 ];
 
 export default function Header() {
@@ -29,46 +32,91 @@ export default function Header() {
     setMounted(true);
   }, []);
 
-  const title = useMemo(() => {
-    return pageTitles.find((entry) => entry.match(pathname))?.title ?? "True Markets";
+  const pageInfo = useMemo(() => {
+    return pageTitles.find((e) => e.match(pathname)) ?? {
+      title: "True Markets",
+      subtitle: "ZK prediction protocol",
+    };
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-white/45 bg-white/60 backdrop-blur-3xl dark:border-white/[0.08] dark:bg-black/40 shadow-sm">
-      <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-8">
-        <div className="flex items-center gap-3 md:hidden">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/40 bg-primary/10 text-sm font-black text-primary font-mono shadow-[0_0_20px_rgba(99,102,241,0.3)] backdrop-blur-md">
-            ZK
+    <header className="sticky top-0 z-30 w-full">
+      {/* Backdrop */}
+      <div className="absolute inset-0 border-b backdrop-blur-3xl"
+        style={{
+          background: "rgba(255,255,255,0.55)",
+          borderColor: "rgba(99,102,241,0.1)",
+        }}
+      />
+      <div className="dark:block hidden absolute inset-0 border-b backdrop-blur-3xl"
+        style={{
+          background: "rgba(5,5,10,0.7)",
+          borderColor: "rgba(99,102,241,0.12)",
+        }}
+      />
+
+      <div className="relative flex items-center justify-between gap-4 px-5 py-3.5 md:px-7">
+        {/* Mobile logo */}
+        <div className="flex items-center gap-2.5 md:hidden">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-white"
+            style={{
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              boxShadow: "0 0 16px rgba(99,102,241,0.5)",
+            }}
+          >
+            <span className="text-xs font-black font-mono">ZK</span>
           </div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">
-            True <span className="text-primary font-light">Markets</span>
-          </h1>
-        </div>
-        <div className="hidden md:flex items-center gap-3">
-          <h1 className="font-display text-2xl font-bold tracking-tight text-white/90">
-            {title}
-          </h1>
+          <span className="font-display font-bold text-base tracking-tight">
+            True <span className="text-gradient-brand">Markets</span>
+          </span>
         </div>
 
+        {/* Desktop page title */}
+        <div className="hidden md:flex items-center gap-3">
+          <div>
+            <h1 className="font-display text-xl font-bold tracking-tight leading-none">
+              {pageInfo.title}
+            </h1>
+            {pageInfo.subtitle && (
+              <p className="mt-0.5 text-xs text-muted-foreground font-medium">
+                {pageInfo.subtitle}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Right actions */}
         <div className="ml-auto flex items-center gap-2">
+          {/* Theme toggle */}
           {mounted && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() =>
-                setTheme(resolvedTheme === "dark" ? "light" : "dark")
-              }
-              className="h-11 w-11 rounded-2xl border border-white/55 bg-white/70 shadow-none hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-foreground"
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className="h-9 w-9 rounded-xl border transition-all duration-200"
+              style={{
+                borderColor: "rgba(99,102,241,0.15)",
+                background: "rgba(99,102,241,0.05)",
+              }}
             >
               {resolvedTheme === "dark" ? (
-                <Moon className="h-5 w-5" />
+                <Moon className="h-4 w-4 text-indigo-300" />
               ) : (
-                <SunMedium className="h-5 w-5" />
+                <SunMedium className="h-4 w-4 text-indigo-600" />
               )}
             </Button>
           )}
-          <div className="rounded-full border border-white/55 bg-white/65 p-1 shadow-sm dark:border-white/10 dark:bg-white/5">
+
+          {/* Wallet */}
+          <div
+            className="rounded-xl border p-1"
+            style={{
+              borderColor: "rgba(99,102,241,0.15)",
+              background: "rgba(99,102,241,0.04)",
+            }}
+          >
             <WalletButton />
           </div>
         </div>

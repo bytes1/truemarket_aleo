@@ -10,7 +10,10 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Area,
+  AreaChart,
 } from "recharts";
+import { Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type TimeFrame = "24h" | "7d" | "30d" | "All";
@@ -45,7 +48,6 @@ function clamp(value: number, min: number, max: number) {
 
 function buildPreviewSeries(marketId: number, baseYes: number, count: number) {
   const points: ChartPoint[] = [];
-
   for (let index = 0; index < count; index += 1) {
     const progress = count === 1 ? 1 : index / (count - 1);
     const wave =
@@ -63,15 +65,14 @@ function buildPreviewSeries(marketId: number, baseYes: number, count: number) {
         count <= 8
           ? `${index * 3}h`
           : count <= 14
-          ? `D${index + 1}`
-          : count <= 30
-          ? `W${index + 1}`
-          : `P${index + 1}`,
+            ? `D${index + 1}`
+            : count <= 30
+              ? `W${index + 1}`
+              : `P${index + 1}`,
       yesProbability,
       noProbability: 100 - yesProbability,
     });
   }
-
   return points;
 }
 
@@ -90,24 +91,30 @@ function CustomTooltip({
   payload?: TooltipPayload;
   label?: string;
 }) {
-  if (!active || !payload?.length) {
-    return null;
-  }
+  if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-[20px] border border-slate-200/80 bg-white/96 p-3 shadow-lg dark:border-white/10 dark:bg-slate-950/96">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+    <div
+      className="rounded-xl p-3 shadow-xl"
+      style={{
+        background: "rgba(12,12,22,0.95)",
+        border: "1px solid rgba(99,102,241,0.25)",
+        backdropFilter: "blur(12px)",
+      }}
+    >
+      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
         {label}
       </p>
-      <div className="mt-2 space-y-1">
+      <div className="space-y-1">
         {payload.map((entry) => (
-          <p
-            key={entry.name}
-            className="text-sm font-medium"
-            style={{ color: entry.color }}
-          >
-            {entry.name}: {entry.value.toFixed(1)}%
-          </p>
+          <div key={entry.name} className="flex items-center justify-between gap-4">
+            <span className="text-xs font-medium" style={{ color: entry.color }}>
+              {entry.name}
+            </span>
+            <span className="text-xs font-bold text-foreground">
+              {entry.value.toFixed(1)}%
+            </span>
+          </div>
         ))}
       </div>
     </div>
@@ -127,104 +134,181 @@ export const MarketChart = ({ market }: MarketChartProps) => {
     [market.market_id, market.yesPercentage, timeframe]
   );
 
+  const latestYes = chartData[chartData.length - 1]?.yesProbability ?? market.yesPercentage;
+  const prevYes = chartData[0]?.yesProbability ?? market.yesPercentage;
+  const delta = latestYes - prevYes;
+
   return (
-    <section className="surface-card p-5 md:p-6">
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <section className="surface-card overflow-hidden" style={{ padding: 0 }}>
+      {/* Card header */}
+      <div
+        className="flex flex-col gap-4 px-6 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-xl"
+            style={{
+              background: "rgba(99,102,241,0.12)",
+              border: "1px solid rgba(99,102,241,0.2)",
+            }}
+          >
+            <Activity size={16} style={{ color: "#818cf8" }} />
+          </div>
           <div>
-            <h2 className="font-display text-3xl font-bold tracking-tight">
-              History
+            <h2 className="font-display text-base font-bold tracking-tight">
+              Price History
             </h2>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {(["24h", "7d", "30d", "All"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setTimeframe(value)}
-                className={cn(
-                  "rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
-                  timeframe === value
-                    ? "border-primary/50 bg-primary/10 text-primary shadow-[0_0_15px_rgba(var(--primary),0.15)] font-medium"
-                    : "border-slate-800 bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
-                )}
-              >
-                {value}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-black/20 p-4 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {market.outcome_a}
-            </p>
-            <p className="mt-2 font-display text-4xl font-bold tracking-tight text-primary">
-              {market.yesPercentage}%
-            </p>
-          </div>
-          <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-black/20 p-4 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-destructive/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {market.outcome_b}
-            </p>
-            <p className="mt-2 font-display text-4xl font-bold tracking-tight text-destructive">
-              {market.noPercentage}%
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Probability simulation
+              {delta !== 0 && (
+                <span
+                  className="ml-2 font-semibold"
+                  style={{ color: delta >= 0 ? "#34d399" : "#f87171" }}
+                >
+                  {delta >= 0 ? "▲" : "▼"} {Math.abs(delta).toFixed(1)}pt
+                </span>
+              )}
             </p>
           </div>
         </div>
 
-        <div className="h-[360px] rounded-[28px] border border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-black/20 p-4 relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={chartData}
-              margin={{ top: 20, right: 12, left: -16, bottom: 8 }}
+        {/* Timeframe selector */}
+        <div
+          className="flex items-center gap-1 rounded-xl p-1"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          {(["24h", "7d", "30d", "All"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setTimeframe(value)}
+              className="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200"
+              style={
+                timeframe === value
+                  ? {
+                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    color: "#fff",
+                    boxShadow: "0 2px 10px -2px rgba(99,102,241,0.5)",
+                  }
+                  : { color: "#94a3b8" }
+              }
             >
+              {value}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Outcome probability tiles */}
+      <div className="grid grid-cols-2 gap-3 px-6 py-4">
+        <div
+          className="group relative overflow-hidden rounded-2xl p-4 cursor-pointer transition-all duration-300"
+          style={{
+            background: "rgba(99,102,241,0.07)",
+            border: "1px solid rgba(99,102,241,0.15)",
+          }}
+        >
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{ background: "rgba(99,102,241,0.08)" }}
+          />
+          <p className="relative text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "#818cf8" }}>
+            {market.outcome_a}
+          </p>
+          <p className="relative font-display text-3xl font-bold" style={{ color: "#a5b4fc" }}>
+            {market.yesPercentage}%
+          </p>
+        </div>
+        <div
+          className="group relative overflow-hidden rounded-2xl p-4 cursor-pointer transition-all duration-300"
+          style={{
+            background: "rgba(6,182,212,0.07)",
+            border: "1px solid rgba(6,182,212,0.15)",
+          }}
+        >
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{ background: "rgba(6,182,212,0.08)" }}
+          />
+          <p className="relative text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "#22d3ee" }}>
+            {market.outcome_b}
+          </p>
+          <p className="relative font-display text-3xl font-bold" style={{ color: "#67e8f9" }}>
+            {market.noPercentage}%
+          </p>
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="px-4 pb-6">
+        <div
+          className="h-[260px] rounded-2xl p-2"
+          style={{
+            background: "rgba(255,255,255,0.02)",
+            border: "1px solid rgba(255,255,255,0.05)",
+          }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={chartData}
+              margin={{ top: 16, right: 8, left: -20, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="yesGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="noGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                </linearGradient>
+              </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="rgba(148,163,184,0.22)"
+                stroke="rgba(255,255,255,0.04)"
                 vertical={false}
               />
               <XAxis
                 dataKey="label"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "currentColor", fontSize: 12 }}
-                className="text-muted-foreground"
+                tick={{ fill: "#64748b", fontSize: 11 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
                 domain={[0, 100]}
-                tick={{ fill: "currentColor", fontSize: 12 }}
-                className="text-muted-foreground"
+                tick={{ fill: "#64748b", fontSize: 11 }}
               />
               <ReferenceLine
                 y={50}
-                stroke="rgba(148,163,184,0.35)"
+                stroke="rgba(255,255,255,0.08)"
                 strokeDasharray="4 4"
               />
               <Tooltip content={<CustomTooltip />} />
-              <Line
+              <Area
                 type="monotone"
                 dataKey="yesProbability"
-                stroke="var(--color-primary)"
-                strokeWidth={3}
+                stroke="#6366f1"
+                strokeWidth={2.5}
+                fill="url(#yesGrad)"
                 dot={false}
                 name={market.outcome_a}
               />
-              <Line
+              <Area
                 type="monotone"
                 dataKey="noProbability"
-                stroke="var(--color-destructive)"
-                strokeWidth={3}
+                stroke="#06b6d4"
+                strokeWidth={2.5}
+                fill="url(#noGrad)"
                 dot={false}
                 name={market.outcome_b}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>

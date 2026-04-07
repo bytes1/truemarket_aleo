@@ -72,7 +72,7 @@ Important:
 - `set_market` is one-time only
 - if you configure the wrong market address, redeploy the adapter
 
-## `true_prediction_market_v3`
+## `true_prediction_market_v4`
 
 Path: [`ture_prediction_market1/src/main.leo`](./ture_prediction_market1/src/main.leo)
 
@@ -236,8 +236,8 @@ Recommended order:
 
 1. deploy `true_market_token` if needed for your environment
 2. deploy or point to `test_usdcx_stablecoin`
-3. deploy `true_prediction_market_v3`
-4. approve `true_prediction_market_v3.aleo` as spender before market funding or trading
+3. deploy `true_prediction_market_v4`
+4. approve `true_prediction_market_v4.aleo` as spender before market funding or trading
 
 ### Standalone launchpad stack
 
@@ -260,7 +260,7 @@ Recommended order:
 
 Before token movement can happen:
 
-- market users must call `approve_public(program_address, amount)` for `true_prediction_market_v3`
+- market users must call `approve_public(program_address, amount)` for `true_prediction_market_v4`
 - P2P users must call `approve_public(program_address, amount)` for `true_private_p2p_v3`
 - launchpad users must call `approve_public(adapter_address, amount)` for `launchpad_usdcx_adapter`
 
@@ -295,7 +295,7 @@ Examples:
 
 Market trading produces:
 
-- `Position` records from `true_prediction_market_v3`
+- `Position` records from `true_prediction_market_v4`
 
 P2P betting produces:
 
