@@ -93,25 +93,25 @@ If canceled, participants may claim their position value at the time of cancella
       "https://ipfs.io/ipfs/QmQfWHShio7K1Ev6BtTEA4CBC55VJRAPmXRkS6wwzhhiSb",
     cardStyle: "image", // <-- NEW: Standard image card
   }, // SBET PRICE: Pump to $22 or Dump to $12?
-  {
-    market_id: 3,
-    market_title: "Stablecoin market cap to pass $360B before February?",
-    category: "Crypto",
-    outcome_a: "YES",
-    outcome_b: "NO",
-    yesPercentage: 50,
-    noPercentage: 50,
-    volume: "0K",
-    participants: 0,
-    deadline: "HIT",
-    marketType: "Binary",
-    currency: "MUSD",
-    market_data: `Stablecoin market cap to pass $360B before February?;**Market Dates:**\n\n- **Observation Period:** From publication date until January 31, 2026, at 11:59 PM UTC.\n- **Market Close:** January 29, 2026, at 11:59 PM UTC, two days before resolution.\n- **Resolution Time:** January 31, 2026, at 11:59 PM UTC.\n- **Market Target:** $360,000b\n\n**Yes/No Criteria:**\n\n- Resolves to “**Yes**” if the “Total Stablecoins Market Cap”, as shown by DeFiLlama, is strictly above the Market Target for any day of the Observation Period.\n- Resolves to “**No**” if not.\n\n**Resolution:**\n\n- The outcome will be determined using DeFiLlama’s “Total Stablecoins Market Cap” chart.\n\n**Cancelation Conditions:**\n\nThe market will be canceled if:\n\n- DeFiLlama or the “Total Stablecoins Market Cap” chart becomes unavailable for prolonged periods, becomes unreliable, or experiences significant disruptions during the Observation Period\n- Any technical issues prevent reliable market cap verification for resolution\n\nIn the event of cancelation, participants may claim their stakes at the market value of their open positions at the time of cancelation. This could result in a profit or a loss, depending on the price of their outstanding shares.␟"Yes","No"␟Crypto;;https://defillama.com/stablecoins;Defilama␟`,
-    image:
-      "https://ipfs.io/ipfs/QmZ5WGnYicrGABb5H3wKbuDA85rZx2KZ1sBNcjuVn9YkL1",
-    isFlashMarket: true,
-    cardStyle: "image", // <-- NEW: Standard image card
-  }, // Will Donald Trump visit China in 2026?
+  // {
+  //   market_id: 3,
+  //   market_title: "Stablecoin market cap to pass $360B before February?",
+  //   category: "Crypto",
+  //   outcome_a: "YES",
+  //   outcome_b: "NO",
+  //   yesPercentage: 50,
+  //   noPercentage: 50,
+  //   volume: "0K",
+  //   participants: 0,
+  //   deadline: "HIT",
+  //   marketType: "Binary",
+  //   currency: "MUSD",
+  //   market_data: `Stablecoin market cap to pass $360B before February?;**Market Dates:**\n\n- **Observation Period:** From publication date until January 31, 2026, at 11:59 PM UTC.\n- **Market Close:** January 29, 2026, at 11:59 PM UTC, two days before resolution.\n- **Resolution Time:** January 31, 2026, at 11:59 PM UTC.\n- **Market Target:** $360,000b\n\n**Yes/No Criteria:**\n\n- Resolves to “**Yes**” if the “Total Stablecoins Market Cap”, as shown by DeFiLlama, is strictly above the Market Target for any day of the Observation Period.\n- Resolves to “**No**” if not.\n\n**Resolution:**\n\n- The outcome will be determined using DeFiLlama’s “Total Stablecoins Market Cap” chart.\n\n**Cancelation Conditions:**\n\nThe market will be canceled if:\n\n- DeFiLlama or the “Total Stablecoins Market Cap” chart becomes unavailable for prolonged periods, becomes unreliable, or experiences significant disruptions during the Observation Period\n- Any technical issues prevent reliable market cap verification for resolution\n\nIn the event of cancelation, participants may claim their stakes at the market value of their open positions at the time of cancelation. This could result in a profit or a loss, depending on the price of their outstanding shares.␟"Yes","No"␟Crypto;;https://defillama.com/stablecoins;Defilama␟`,
+  //   image:
+  //     "https://ipfs.io/ipfs/QmZ5WGnYicrGABb5H3wKbuDA85rZx2KZ1sBNcjuVn9YkL1",
+  //   isFlashMarket: true,
+  //   cardStyle: "image", // <-- NEW: Standard image card
+  // }, // Will Donald Trump visit China in 2026?
 
 
 

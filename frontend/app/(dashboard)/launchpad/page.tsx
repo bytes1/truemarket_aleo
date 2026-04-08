@@ -28,7 +28,7 @@ const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
 const LAUNCHPAD_PROGRAM_ID =
   process.env.NEXT_PUBLIC_LAUNCHPAD_PROGRAM_ID ?? "true_market_launchpad_v3.aleo";
 const LAUNCHPAD_ADAPTER_ADDRESS =
-  process.env.NEXT_PUBLIC_LAUNCHPAD_ADAPTER_ADDRESS ?? "launchpad_usdcx_adapter.aleo";
+  process.env.NEXT_PUBLIC_LAUNCHPAD_ADAPTER_ADDRESS ?? "aleo1k5kzdk75p7kr7cphf7jumm628xkzauvrt5fg2cw340ymks0ugqyqrnfp4t";
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";
 const TOKEN_DECIMALS = 6;
 
