@@ -35,7 +35,7 @@ const mainNavigation: NavItem[] = [
   { name: "Launchpad", href: "/launchpad", icon: Rocket, badge: "NEW" },
   { name: "Oracle", href: "/oracle", icon: Scale },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
-  { name: "Faucet", href: "/faucet", icon: Droplets },
+  // { name: "Faucet", href: "/faucet", icon: Droplets },
 ];
 
 const bottomNavigation: NavItem[] = [

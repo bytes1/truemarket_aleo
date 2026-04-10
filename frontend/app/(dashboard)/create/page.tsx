@@ -71,7 +71,7 @@ const defaultCreateForm: CreateFormState = {
   description: "",
   closeHeight: "",
   initialLiquidity: "",
-  oracleStake: "10", // Default 10 USDCx bond
+  oracleStake: "100", // Default 10 USDCx bond
   sourceLink: "",
 };
 

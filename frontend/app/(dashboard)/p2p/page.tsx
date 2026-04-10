@@ -22,10 +22,7 @@ import { cn } from "@/lib/utils";
 const TOKEN_PROGRAM_ID = "test_usdcx_stablecoin.aleo";
 const P2P_PROGRAM_ID =
   process.env.NEXT_PUBLIC_P2P_PROGRAM_ID ?? "true_private_p2p_v3.aleo";
-const P2P_SPENDER_ADDRESS =
-  process.env.NEXT_PUBLIC_P2P_SPENDER_ADDRESS ??
-  process.env.NEXT_PUBLIC_P2P_ADAPTER_ADDRESS ??
-  P2P_PROGRAM_ID;
+const P2P_SPENDER_ADDRESS = "aleo1alqly3pyduawuslewq2vfmljtqhxxd259kqsz8lqw3j43kdsh5rqp3eg00";
 const API_URL = "https://api.explorer.provable.com/v1/testnet/program";
 const TOKEN_DECIMALS = 6;
 const LATEST_INVITE_STORAGE_KEY = "true-markets.latest-p2p-invite";
@@ -549,10 +546,7 @@ export default function P2PPage() {
       setStatus("Not enough USDCx balance.");
       return;
     }
-    if (P2P_SPENDER_ADDRESS === "") {
-      setStatus("P2P spender address is missing.");
-      return;
-    }
+
 
     await runTx(async () => {
       setStatus("Approving USDCx spending...");
@@ -615,10 +609,7 @@ export default function P2PPage() {
       setStatus("Not enough USDCx balance.");
       return;
     }
-    if (P2P_SPENDER_ADDRESS === "") {
-      setStatus("P2P spender address is missing.");
-      return;
-    }
+
 
     await runTx(async () => {
       setStatus("Approving USDCx spending...");
@@ -865,10 +856,10 @@ export default function P2PPage() {
               const statusLabel = !state.exists
                 ? "not initialized"
                 : state.isResolved
-                ? state.winningOutcome === 3
-                  ? "canceled"
-                  : "resolved"
-                : "open";
+                  ? state.winningOutcome === 3
+                    ? "canceled"
+                    : "resolved"
+                  : "open";
 
               return (
                 <button
@@ -878,7 +869,7 @@ export default function P2PPage() {
                   className={cn(
                     "surface-card w-full p-5 text-left transition-all duration-200",
                     isActive &&
-                      "border-transparent shadow-[0_28px_60px_-34px_rgba(14,165,233,0.42)] ring-1 ring-sky-400/30"
+                    "border-transparent shadow-[0_28px_60px_-34px_rgba(14,165,233,0.42)] ring-1 ring-sky-400/30"
                   )}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
@@ -937,10 +928,10 @@ export default function P2PPage() {
                   {!selectedState.exists
                     ? "Not initialized"
                     : selectedState.isResolved
-                    ? selectedState.winningOutcome === 3
-                      ? "Canceled"
-                      : "Resolved"
-                    : "Open"}
+                      ? selectedState.winningOutcome === 3
+                        ? "Canceled"
+                        : "Resolved"
+                      : "Open"}
                 </p>
               </div>
               <div className="rounded-[22px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
@@ -1062,73 +1053,73 @@ export default function P2PPage() {
                     {latestInvite &&
                       latestInviteOffer &&
                       latestInviteOffer.marketId === selectedMarket.market_id && (
-                      <div className="space-y-3 rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-white/10 dark:bg-slate-950/25">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                              Side
-                            </p>
-                            <p className="mt-2 text-base font-semibold text-foreground">
-                              {latestInvite.outcome === "0u8"
-                                ? selectedMarket.outcome_a
-                                : selectedMarket.outcome_b}
-                            </p>
+                        <div className="space-y-3 rounded-[22px] border border-slate-200/70 bg-white p-4 dark:border-white/10 dark:bg-slate-950/25">
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <div>
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                                Side
+                              </p>
+                              <p className="mt-2 text-base font-semibold text-foreground">
+                                {latestInvite.outcome === "0u8"
+                                  ? selectedMarket.outcome_a
+                                  : selectedMarket.outcome_b}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                                Stake
+                              </p>
+                              <p className="mt-2 text-base font-semibold text-foreground">
+                                {formatUnits(latestInviteOffer?.stake ?? 0n, TOKEN_DECIMALS, 4)}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                              Stake
-                            </p>
-                            <p className="mt-2 text-base font-semibold text-foreground">
-                              {formatUnits(latestInviteOffer?.stake ?? 0n, TOKEN_DECIMALS, 4)}
-                            </p>
+
+                          <textarea
+                            readOnly
+                            value={latestInviteShareText || JSON.stringify(latestInvite)}
+                            className="h-28 w-full rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-xs outline-none dark:border-white/10 dark:bg-slate-950/25"
+                          />
+
+                          <div className="flex flex-wrap gap-3">
+                            <Button
+                              variant="secondary"
+                              className="h-11 rounded-2xl"
+                              onClick={handleCopyInvite}
+                              disabled={isProcessing}
+                            >
+                              <Copy className="mr-2 h-4 w-4" />
+                              Copy invite
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              className="h-11 rounded-2xl"
+                              onClick={handleEmailInvite}
+                              disabled={isProcessing}
+                            >
+                              <Mail className="mr-2 h-4 w-4" />
+                              Email invite
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              className="h-11 rounded-2xl"
+                              onClick={handleShareInvite}
+                              disabled={isProcessing}
+                            >
+                              <Share2 className="mr-2 h-4 w-4" />
+                              Share invite
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              className="h-11 rounded-2xl"
+                              onClick={() => handleCancelInvite(latestInvite)}
+                              disabled={isProcessing}
+                            >
+                              Cancel invite
+                            </Button>
                           </div>
                         </div>
-
-                        <textarea
-                          readOnly
-                          value={latestInviteShareText || JSON.stringify(latestInvite)}
-                          className="h-28 w-full rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-xs outline-none dark:border-white/10 dark:bg-slate-950/25"
-                        />
-
-                        <div className="flex flex-wrap gap-3">
-                          <Button
-                            variant="secondary"
-                            className="h-11 rounded-2xl"
-                            onClick={handleCopyInvite}
-                            disabled={isProcessing}
-                          >
-                            <Copy className="mr-2 h-4 w-4" />
-                            Copy invite
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            className="h-11 rounded-2xl"
-                            onClick={handleEmailInvite}
-                            disabled={isProcessing}
-                          >
-                            <Mail className="mr-2 h-4 w-4" />
-                            Email invite
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            className="h-11 rounded-2xl"
-                            onClick={handleShareInvite}
-                            disabled={isProcessing}
-                          >
-                            <Share2 className="mr-2 h-4 w-4" />
-                            Share invite
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            className="h-11 rounded-2xl"
-                            onClick={() => handleCancelInvite(latestInvite)}
-                            disabled={isProcessing}
-                          >
-                            Cancel invite
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+                      )}
                   </div>
                 ) : (
                   <div className="mt-4 space-y-4 rounded-[24px] border border-slate-200/70 bg-white/88 p-4 dark:border-white/10 dark:bg-white/5">
@@ -1219,8 +1210,8 @@ export default function P2PPage() {
                 </p>
                 <p className="mt-2 text-base font-semibold text-foreground">
                   {latestInvite &&
-                  latestInviteOffer &&
-                  latestInviteOffer.marketId === selectedMarket.market_id
+                    latestInviteOffer &&
+                    latestInviteOffer.marketId === selectedMarket.market_id
                     ? "Yes"
                     : "No"}
                 </p>

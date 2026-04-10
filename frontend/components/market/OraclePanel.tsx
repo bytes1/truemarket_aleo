@@ -22,7 +22,7 @@ export function OraclePanel({ market }: OraclePanelProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
 
-  const bondAmount = 10; // Derived from market in a real app, assuming 10 here for UI
+  const bondAmount = 100; // Derived from market in a real app, assuming 10 here for UI
   const bondUnits = bondAmount * 1_000_000;
 
   const handlePropose = async (outcome: "YES" | "NO") => {
@@ -115,7 +115,7 @@ export function OraclePanel({ market }: OraclePanelProps) {
     }
   };
 
-  if (market.is_resolved || oracleState === "RESOLVED") return null;
+  if (market.isClosed || oracleState === "RESOLVED") return null;
 
   return (
     <div className="surface-card overflow-hidden p-0 ring-1 ring-white/5">
@@ -128,7 +128,7 @@ export function OraclePanel({ market }: OraclePanelProps) {
           Bond: {bondAmount} USDCx
         </div>
       </div>
-      
+
       <div className="p-5 space-y-4">
         {oracleState === "OPEN" && (
           <>
